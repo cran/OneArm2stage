@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>OneArm2stage</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">OneArm2stage</h1>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The two-stage design proposed by Wu et al., 2020 can be used for
+single-arm phase II trial designs with time-to-event (TOE) endpoints.
+This is especially useful for clinical trials on immunotherapies and
+molecularly targeted therapies for cancer where the TOE endpoint is
+commonly chosen as the primary endpoint. There are two advantages of the
+proposed approach: 1) It provides flexible choices from four underlying
+survival distributions and 2) the power of the design is more accurately
+calculated using the exact variance in one-sample log-rank test. The
+<code>OneArm2stage</code> package can be used for 1) planning the sample
+size and 2) conducting the interim analysis (to make the Go/No-go
+decisions) and the final analysis in single-arm phase II survival
+trials.</p>
+</div>
+<div id="examples" class="section level2">
+<h2>Examples</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(OneArm2stage)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(survival)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(IPDfromKM)</span></code></pre></div>
+<div id="example-1-design-a-study-with-restricted-follow-up" class="section level3">
+<h3>Example 1 (Design a study with restricted follow-up)</h3>
+<p>Assuming we are designing a study with the 2-year event-free survival
+(EFS) as the primary endpoint to plan the sample size. The hypotheses
+are: H0: S0 = 62% versus H1: S1 = 80% at the landmark time point 2 years
+(x0=2). This is equivalent to a hazard ratio of 0.467 assuming the
+survival time follows the proportional hazard assumption (<span class="math inline">\(0.62^{0.467}=0.8\)</span>). For this specific
+study, the historical accrual rate is assumed to be 5 patients per year
+and the restricted follow-up time for each patient is set to be 2 years
+(x=2). Given type I error rate and power set to be 0.05 and 0.8, and
+given the failure time follows an exponential distribution (“WB”
+distribution with shape = 1 is essentially an exponential distribution),
+we can use the function <code>Optimal.rKJ</code> to plan this study as
+shown below.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Design1 <span class="ot">&lt;-</span> <span class="fu">Optimal.rKJ</span>(<span class="at">dist=</span><span class="st">&quot;WB&quot;</span>, <span class="at">shape=</span><span class="dv">1</span>, <span class="at">S0=</span><span class="fl">0.62</span>, <span class="at">x0=</span><span class="dv">2</span>, <span class="at">hr=</span><span class="fl">0.467</span>, <span class="at">x=</span><span class="dv">2</span>, <span class="at">rate=</span><span class="dv">5</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">alpha=</span><span class="fl">0.05</span>, <span class="at">beta=</span><span class="fl">0.2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Design1<span class="sc">$</span>Two_stage</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  n1     c1    n      c     t1    MTSL      ES     PS</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 26 0.1349  46   1.6171 5.0946  11.2   34.6342 0.5537</span></span></code></pre></div>
+<p>Based on the above output, we need to plan for an accrual time of 5.1
+years (or equivalently enroll 26 patients assuming rate=5) in the 1st
+stage before we can conduct the interim analysis. If the decision is
+“Go”, we will enroll additional 20 patients (<span class="math inline">\(46 - 26 = 20\)</span>) in the 2nd stage to conduct
+the final analysis. Critical values for the 1st and 2nd stages are
+0.1349 and 1.6171, respectively. Overall, this study will take maximum
+11.2 years to be completed and have an expected sample size of 34.6342
+under H0. The probability of early stopping under H0 is 55.37%.</p>
+</div>
+<div id="example-2-conduct-interimfinal-analysis" class="section level3">
+<h3>Example 2 (Conduct interim/final analysis)</h3>
+<p>Suppose we have followed the design in Example 1 and collected data
+from 26 patients for four variables: 1) <code>Entry</code> (when
+patients enter trial), 2) <code>time</code> (observed time of patients
+under the trial), 3) <code>status</code> (patient status indicator) and
+4) <code>Total</code> (the sum of <code>Entry</code> and
+<code>time</code>) as shown below. For those who would like to try the
+example on their own, the data samples used can be found in the folder
+under <code>/OneArm2stage/extdata</code>.</p>
+<pre><code>#&gt;        Entry      time status     Total
+#&gt; 16 0.1751473 2.0000000      0 2.1751473
+#&gt; 15 0.2037084 1.9788860      1 2.1825944
+#&gt; 20 0.2057495 0.7585931      1 0.9643426
+#&gt; 2  0.4849195 0.3754064      1 0.8603259
+#&gt; 9  0.8156683 0.9108228      1 1.7264911
+#&gt; 12 0.9105992 2.0000000      0 2.9105992
+#&gt; 22 1.0186641 1.9943413      1 3.0130054
+#&gt; 26 1.0585012 2.0000000      0 3.0585012
+#&gt; 19 1.1806645 2.0000000      0 3.1806645
+#&gt; 8  1.4351793 1.4999062      1 2.9350855
+#&gt; 11 1.6707471 2.0000000      0 3.6707471
+#&gt; 1  1.7450642 1.8066005      1 3.5516647
+#&gt; 13 1.9559141 0.3306302      1 2.2865444
+#&gt; 14 2.0315492 2.0000000      0 4.0315492
+#&gt; 24 2.0733742 2.0000000      0 4.0733742
+#&gt; 25 2.5297900 2.0000000      0 4.5297900
+#&gt; 23 2.7490369 2.0000000      0 4.7490369
+#&gt; 17 3.0558739 2.0000000      0 5.0558739
+#&gt; 5  3.2362173 0.1812412      1 3.4174585
+#&gt; 10 3.3746414 1.0227582      1 4.3973996
+#&gt; 18 4.0819773 1.0126227      0 5.4623913
+#&gt; 7  4.3221594 0.7724406      0 6.3221594
+#&gt; 3  4.6492995 0.4453005      0 5.7776514
+#&gt; 21 4.7298983 0.3647017      0 6.7298983
+#&gt; 4  4.7536854 0.3409146      0 6.7536854
+#&gt; 6  4.9215797 0.1730203      0 6.9215797</code></pre>
+<p>We can contruct a Kaplan-Meier survival curve for this hypothetical
+dataset (dat1, n=26). <img src="data:image/png;base64,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V0RA/I3d3U8kGhuOdIff2h192XRjLw5zejKrteOOnVy16FzWThUPkJwUUmP+xoYjnWuEt+6nuB3m9GR2a2q0VB52WTtTPECGD8aGI11TWd2si3V3vw5zejKHNZlW5hqHtXNFBCSyt3LW2HCka8r3emw4UQ/Ibs7Y77TWDZe6rZ0oHiD59agvydhwpFPjvJZ76u7BYU5P5rbWTXe6rZ1oZkBqF8oanoCANT1GzwAorIjJXZb57tFFzGWtny6fqYiFBWm5y1I7+wTp5hzQoLWqj00zBemgal76CrOGu2I+4ThoTf8xg5mq+bCGolw1gYK0u2mn1WI2a2J1z7AHQDG7GpVswMvJ2cremjfS8WeJbStuxJ1Dc3oym7VKrkq5ecTWTkSdVSACBESAgAgQEAECIkBABAiIAAERICACBESAgAgQEAECIkBABAiIAAERICACBESAgAgQEAECIkBABAiIAAERICACBESAgLID1L9s7l/43aAXUHaAuFxrgy8tAgSUMSDxw6arr1mRWx9WclVL5VzEmkTZAxIr5G+fxIo5/m4IcylUemUPaN20f7bx3r4yQtkDat+6wv7IVXPOV0DF11UBUg0AAuTMQRfWNQHyeKt8fF0TIPmGo/Ky+eiqAIl20GUrsTwB5SQCBESAgAgQEAECIkBABAiIAAERICACBESAgAgQEAECIkBABAiIAAERICACBESAgAgQEAECIkBABAiIAAH9H+Eg84kjEHTJAAAAAElFTkSuQmCC" /><!-- --></p>
+<p>The survival rates estimated with the Kaplan-Meier method can also be
+otained with this hypothetical dataset (dat1, n=26).</p>
+<pre><code>#&gt; Call: survfit(formula = Surv(time, status) ~ 1, data = dat1, conf.type = &quot;log-log&quot;)
+#&gt; 
+#&gt;   time n.risk n.event survival std.err lower 95% CI upper 95% CI
+#&gt;  0.173     26       0    1.000  0.0000           NA           NA
+#&gt;  0.181     25       1    0.960  0.0392        0.748        0.994
+#&gt;  0.331     24       1    0.920  0.0543        0.716        0.979
+#&gt;  0.341     23       0    0.920  0.0543        0.716        0.979
+#&gt;  0.365     22       0    0.920  0.0543        0.716        0.979
+#&gt;  0.375     21       1    0.876  0.0671        0.663        0.958
+#&gt;  0.445     20       0    0.876  0.0671        0.663        0.958
+#&gt;  0.759     19       1    0.830  0.0778        0.607        0.933
+#&gt;  0.772     18       0    0.830  0.0778        0.607        0.933
+#&gt;  0.911     17       1    0.781  0.0872        0.549        0.903
+#&gt;  1.013     16       0    0.781  0.0872        0.549        0.903
+#&gt;  1.023     15       1    0.729  0.0957        0.490        0.869
+#&gt;  1.500     14       1    0.677  0.1020        0.435        0.833
+#&gt;  1.807     13       1    0.625  0.1067        0.384        0.794
+#&gt;  1.979     12       1    0.573  0.1098        0.335        0.753
+#&gt;  1.994     11       1    0.521  0.1115        0.289        0.710
+#&gt;  2.000     10       0    0.521  0.1115        0.289        0.710</code></pre>
+<p>We can use the function <code>LRT</code> (log-rank test) in package
+<code>OneArm2stage</code> to test H0: S0 = 0.62 against H1: S1 = 0.80 at
+the landmark time x0=2, using the data shown above (n = 26). The
+“Go”/“No-go” decision can be made based on the calculated critical value
+Z from the output below.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">LRT</span>(<span class="at">dist =</span> <span class="st">&quot;WB&quot;</span>, <span class="at">shape =</span> <span class="dv">1</span>, <span class="at">S0=</span><span class="fl">0.62</span>, <span class="at">x0=</span><span class="dv">2</span>, <span class="at">data=</span>dat1)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       O       E       Z </span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10.0000  8.1190 -0.6601</span></span></code></pre></div>
+<p>Based on the above output, the test statistic Z = -0.6601, which is
+smaller than the critical value for the 1st stage c1 = 0.1349 (See
+Example 1). Therefore, the decision is “No-go”, and we need to stop the
+trial and declare futility.</p>
+<p>Now let’s assume what we have collected is a different sample of 26
+patients, and their data are shown below.</p>
+<pre><code>#&gt;        Entry      time status    Total
+#&gt; 16 0.1751473 2.0000000      0 2.175147
+#&gt; 15 0.2037084 2.0000000      0 2.203708
+#&gt; 20 0.2057495 1.6243964      1 1.830146
+#&gt; 2  0.4849195 0.8038681      1 1.288788
+#&gt; 9  0.8156683 1.9503701      1 2.766038
+#&gt; 12 0.9105992 2.0000000      0 2.910599
+#&gt; 22 1.0186641 2.0000000      0 3.018664
+#&gt; 26 1.0585012 2.0000000      0 3.058501
+#&gt; 19 1.1806645 2.0000000      0 3.180664
+#&gt; 8  1.4351793 2.0000000      0 3.435179
+#&gt; 11 1.6707471 2.0000000      0 3.670747
+#&gt; 1  1.7450642 2.0000000      0 3.745064
+#&gt; 13 1.9559141 0.7079877      1 2.663902
+#&gt; 14 2.0315492 2.0000000      0 4.031549
+#&gt; 24 2.0733742 2.0000000      0 4.073374
+#&gt; 25 2.5297900 2.0000000      0 4.529790
+#&gt; 23 2.7490369 2.0000000      0 4.749037
+#&gt; 17 3.0558739 2.0000000      0 5.055874
+#&gt; 5  3.2362173 0.3880967      1 3.624314
+#&gt; 10 3.3746414 1.7199586      0 5.374641
+#&gt; 18 4.0819773 1.0126227      0 6.081977
+#&gt; 7  4.3221594 0.7724406      0 6.322159
+#&gt; 3  4.6492995 0.4453005      0 6.649299
+#&gt; 21 4.7298983 0.3647017      0 6.729898
+#&gt; 4  4.7536854 0.3409146      0 6.753685
+#&gt; 6  4.9215797 0.1730203      0 6.921580</code></pre>
+<p>We can contruct a Kaplan-Meier survival curve for this hypothetical
+dataset (dat2.1, n=26). <img src="data:image/png;base64,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" /><!-- --></p>
+<p>The survival rates estimated with the Kaplan-Meier method can also be
+otained with this hypothetical dataset (dat2.1, n=26). We can see at
+time = 2 years, the survival rate = 0.758.</p>
+<pre><code>#&gt; Call: survfit(formula = Surv(time, status) ~ 1, data = dat2.1, conf.type = &quot;log-log&quot;)
+#&gt; 
+#&gt;   time n.risk n.event survival std.err lower 95% CI upper 95% CI
+#&gt;  0.173     26       0    1.000  0.0000           NA           NA
+#&gt;  0.341     25       0    1.000  0.0000           NA           NA
+#&gt;  0.365     24       0    1.000  0.0000           NA           NA
+#&gt;  0.388     23       1    0.957  0.0425        0.729        0.994
+#&gt;  0.445     22       0    0.957  0.0425        0.729        0.994
+#&gt;  0.708     21       1    0.911  0.0601        0.688        0.977
+#&gt;  0.772     20       0    0.911  0.0601        0.688        0.977
+#&gt;  0.804     19       1    0.863  0.0736        0.632        0.954
+#&gt;  1.013     18       0    0.863  0.0736        0.632        0.954
+#&gt;  1.624     17       1    0.812  0.0850        0.572        0.925
+#&gt;  1.720     16       0    0.812  0.0850        0.572        0.925
+#&gt;  1.950     15       1    0.758  0.0951        0.510        0.892
+#&gt;  2.000     14       0    0.758  0.0951        0.510        0.892</code></pre>
+<p>We can use <code>LRT</code> to test the hypotheses H0: s0 = 0.62
+vs. H1: s1 = 0.80 again based on the alternative sample.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">LRT</span>(<span class="at">dist =</span> <span class="st">&quot;WB&quot;</span>, <span class="at">shape =</span> <span class="dv">1</span>, <span class="at">S0=</span><span class="fl">0.62</span>, <span class="at">x0=</span><span class="dv">2</span>, <span class="at">data=</span>dat2<span class="fl">.1</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      O      E      Z </span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5.0000 9.1553 1.3733</span></span></code></pre></div>
+<p>Since now the test statistic Z becomes 1.3733 and is larger than the
+1st stage critical value c1 = 0.1349, the decision is “Go” and the trial
+will proceed to the 2nd stage. For that we will enroll additional 20
+patients (46 - 26 = 20). We assume the final data after adding the
+additional 20 patients is as shown below.</p>
+<pre><code>#&gt;        Entry      time status     Total
+#&gt; 28 0.1751473 2.0000000      0  2.175147
+#&gt; 27 0.2037084 2.0000000      0  2.203708
+#&gt; 34 0.2057495 1.6243964      1  1.830146
+#&gt; 3  0.4849195 0.8038681      1  1.288788
+#&gt; 12 0.8156683 1.9503701      1  2.766038
+#&gt; 18 0.9105992 2.0000000      0  2.910599
+#&gt; 39 1.0186641 2.0000000      0  3.018664
+#&gt; 46 1.0585012 2.0000000      0  3.058501
+#&gt; 33 1.1806645 2.0000000      0  3.180664
+#&gt; 11 1.4351793 2.0000000      0  3.435179
+#&gt; 16 1.6707471 2.0000000      0  3.670747
+#&gt; 1  1.7450642 2.0000000      0  3.745064
+#&gt; 20 1.9559141 0.7079877      1  2.663902
+#&gt; 26 2.0315492 2.0000000      0  4.031549
+#&gt; 42 2.0733742 2.0000000      0  4.073374
+#&gt; 43 2.5297900 2.0000000      0  4.529790
+#&gt; 41 2.7490369 2.0000000      0  4.749037
+#&gt; 30 3.0558739 2.0000000      0  5.055874
+#&gt; 6  3.2362173 0.3880967      1  3.624314
+#&gt; 14 3.3746414 2.0000000      0  5.374641
+#&gt; 31 4.0819773 2.0000000      0  6.081977
+#&gt; 10 4.3221594 2.0000000      0  6.322159
+#&gt; 4  4.6492995 2.0000000      0  6.649299
+#&gt; 36 4.7298983 2.0000000      0  6.729898
+#&gt; 5  4.7536854 2.0000000      0  6.753685
+#&gt; 9  4.9215797 2.0000000      0  6.921580
+#&gt; 17 5.2925843 1.2395647      1  6.532149
+#&gt; 25 5.3239487 2.0000000      0  7.323949
+#&gt; 21 5.4715527 2.0000000      0  7.471553
+#&gt; 37 5.7529107 2.0000000      0  7.752911
+#&gt; 38 5.8474833 2.0000000      0  7.847483
+#&gt; 13 5.9075769 1.2108378      1  7.118415
+#&gt; 35 6.7189713 2.0000000      0  8.718971
+#&gt; 32 6.9993933 0.2237612      1  7.223154
+#&gt; 7  7.2432056 0.8315737      1  8.074779
+#&gt; 15 7.3439092 2.0000000      0  9.343909
+#&gt; 19 7.6240584 2.0000000      0  9.624058
+#&gt; 45 7.7256301 2.0000000      0  9.725630
+#&gt; 2  7.9269020 2.0000000      0  9.926902
+#&gt; 40 8.1280655 2.0000000      0 10.128066
+#&gt; 23 8.1931211 0.7256491      1  8.918770
+#&gt; 44 8.4734503 2.0000000      0 10.473450
+#&gt; 8  8.5440524 2.0000000      0 10.544052
+#&gt; 22 8.5786669 2.0000000      0 10.578667
+#&gt; 29 8.7362357 1.7539730      1 10.490209
+#&gt; 24 8.8650923 2.0000000      0 10.865092</code></pre>
+<p>We can contruct a Kaplan-Meier survival curve for this combined
+dataset (n=46). <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAulBMVEUAAAAAADoAAGYAOjoAOmYAOpAAZpAAZrY6AAA6ADo6AGY6OgA6Ojo6OmY6ZmY6ZpA6ZrY6kLY6kNtmAABmADpmOgBmOjpmkLZmkNtmtrZmtttmtv+QOgCQZgCQZjqQkDqQkGaQkLaQtpCQttuQtv+Q29uQ2/+2ZgC2Zjq2kDq2kGa227a229u22/+2/7a2/9u2///bkDrbkGbbtmbbtpDb27bb29vb////tmb/25D/27b//7b//9v////RgnxtAAAACXBIWXMAAA7DAAAOwwHHb6hkAAALJUlEQVR4nO2dC3vbthmFaSeetSVZOmnZVstrt3a12rXZzGWd6Iv+/98abgRAScQBSYCkpHOeJ45Igh8+vsIdIFTsqKCKqR2YuwgIiICACAiIgIAICIiAgAgIiICACAiIgIAICIiAgAgIiICACAiIgIAICIiAgAgIiICACAiIgIAICIiAgAgIiICACAiIgIAICIiAgAgIKAJQWVw96P/NhyN6vS9utmEzm6IwYeSn2453xyhgpn8M8YBCfGIBKQMvq7MEVIX4xAIqluLD02IfUH7lB+T4/PeTeL4P8vOmuP75T0Xx9rN1wF0TN/3wo7jmmApA71WgsjCAXkWAq6+29m57LO/+7lNx/Vnf+Z934vzHzzrGR5UElzbMJ3VK+rdWZjbu2POnAeiLsPfmDprTDkUCqhbF1VodVYWSpLUp7GftgHetdNccoN8vVNDrbxUgldUEw0dztzs2d5tHMqak480nUmG+qEcRV262ykzljj1/fEDG7SUyZxyKAvTdQucO9VX8ZitzibIvv+Qv8mmVA/61UqWssr5N+3V3Lw6fFjc/KUAbebcKrd13x/K+m8+7/6n7hJu3WxnL4RPJMOLeW3OqdsI7rv3xAAlqf9g+r6SlsDntUBQg+w1q/frPd+YJDe3rR+tAfa1U14RztrCRoTfqK16WMoh2QgQ0d3vH5m4tYePtL9ZG44nWO3eDTSbu2PPHA6RtlB9/Qeb0+VhA7+ty9fUbzeu2tq+saQe8a9pD+e3rlCoLh2JdiTs2xVoBUmW1zgHqbu/YPZ9Os0Jv/rw9AKTDiPvWJnr11x17/jhAzcwWMmccigN0J91cG3ff/v3XlQfIlo/+tWOArh5EnF+vRIkmfTYFhAXkHTcA7Z4/6dP/qGOss6EOIzOFPmMxuePanwYgL1GHzBmHogDdqeDO2svqWAryrx0HpFKDYqFSUJ2N6rvXLspGk+L5b+90mX3siWSm+FZ9NhTssedPKAW1mdMOxTcUNyrrVHXZsjwsg/xrHiDrjTijG9GVKYPqa3UZdLsXpafXv7qipSoaT6Sywo1rLdhjz5+DMqj68P0OmNMOxQOSN67l35vt831dSDdqMf9aC6BK1a+67BYn7naiOjH1s3fcAKRqHZnP1Hlxt4zBfyJFfb1ziaM+9vxp1mJfbXWJETanHerWF1NJxSukbf1my6AjhbQFJMIJn8V5Dci0e2z1446bKehH16KyBXnjiUzutxS848NC2rp9i8x1aQc91OGXqmZ4+31pmhH/FkcfbUvau9YCSITTmOTp528W/t3ueC+LyZZv8UE1q59Egf3x51XziepYago2VufPYUv6L9CccQgDatXGaxudrQgIiICACAiIQ65ABAREQEAEBERAQAQEREBABAREQEAEBERAQAQEREBABAREQEAEBGQB+ePrlJOXgsrCW4tBGTWzGBkdaL8MKhsLXagmoEpNur7ep1hReS5ygOTEqSZTMQk5ebVYYBHrBcsB+qPmw+TT1AGgkoAaMoDqlSys5vd1kIKophL3xYqT0VSA0prLp46AXlZLswBuYDv6XAGNH+/UGhnQXtZOlf8zatYpqIZ0+H9aZ4I+dAtoC6BRyqDWQPMFNG687YBMekrmTg8fegdMaA4FIiBQeh8vn7r9n8RRF3Am7SCWQVnvzhPVWQKKaEf0AWRefBvm2qBA2VPQIECVekmqHDbwOrSaz9zSHgLo9V6PlG1CaUi+dajewlq3BJh5NT8E0MvKbBwQqMVK9V6geheuZdxx5oB6xOGlID01X7anIJXIKr3TSUuoMwYkyiCZKqpAGaQSmU5hbeksybOhwQCsiDiinVF/4zqrqVJQdqUHFClbBtUl+jBz2TQZoJFqscHKA6jOZhOOB6VSHkCiAVTKDSPaEkdHc0MDZfaiTztouavk5gZRnY22CeqZAMLVW7+G4tPvHtW/AR51inN0De1qyOnnXoC6xzuNBnVWZa7ZLCOzGDY3Sw0b7tioLWuClVi9XUhroLMGhFXWa2OqtkUycy+DbDGZBZDXfs7aWR1DWUYU6xGR3cDO6okCwiOKyVLQkPmaRMozoljWfbBhZdAclGdE0fbXWiGeMaCIEcWU8U6tLCOKKeM9fvd45VCWEcWU8WY3kiqOWc2spjSSKg4Cig+otl0c+EbLOQOqzHbO+UcURzGSKo6DhuI8qvm2dnbs/+kc7dZQTBfv1Dr1FDRMeWY15lMGDVamicMBtVi3Qfvsmm5mdWxzPZUFUOt0eyfNBxCo3/rXYsNdOwn1KaRTvM17xoDmsJA8u3JP+4xuLrUICGgYoNEWkk+nQYDM4sMph1yza9jqDl3NBxeSawUWWc0ckFOPWgxvbhIxcn3GgOoUFOrNm/nCy0xB9dRzsDf/stI/v3SJgCJnfjbqt4suEVCsymJJQEE9Ld4QUFCv9+3lFAGNay6fcgMatJB8Dho5Bc1sTDpCzGJAJ738ZQxlSkGnvpDcKQ+gRAvJ56AegPALdamWAc9BPQDhF+pSLSSfg/p0VuELdZedgmJeqLvoheRRL9Rd8kLyi3ihzqlPNR/xQl26eKcWuxpABATUpxZL8cs1ZwxI7do++IcRzhnQTv/wyLCfQDpzQDvZHOJwR3tApqBAQDXUwzKoPSBrsYEBw1Y4aD+NuXzqPGg/i+2SRxRTEBABAbEWA2JfDIgtaSD2xYCYgoAy9cUueW4+pha76Ln5iFcyObMKdNlz8xGvZF56CsKd1Yuem4/SRc/Njxvv1MqTxRLGO7V6p6DIt+cveCH5pk9X45LGpLnBEgg47Pfmzx9QuEt22Z1V0MTZXXhnNUIxXY2TUQ5AEZ3VbkYjw00SbD/402KpRhRDQ2YRKaibDycESL2BIN+cD/62D+6sdvPhhACp5uFG5ptgQzGmJO/gw+kAUj/qqPckT7FT1zkCWtc/fUlAx4IrQLr4GfYqQjcfTgeQKnnU3kr13v+DdIaAqqsHvbPLZszNAk8IkGwCCT5PiwQZ7Lx0Mp2nqURAQAQEREBABAREQEAEBERAQAQEREBABAREQEApATXG/AMTAP4lPYjbMsTi7SMSmk9wwdqtqSlPO5AOZid8JQQkd+y2P5HYOAiEe/ptu6MvKzv2EjDnB2u19novbi5rdCFr+0oHSE8KmTH/xkEgXGiEt3JT3AFzfrB2a2a0VF8OWTtQOkANHxoHgXC7stXNqlja5w2Y84MFrOmwOtUErB0qISCVvI2zjYNAuN3mvV827MkBajfXOB+0ZodLw9b2lA6Q/nrMl9Q4CIQz47wtz2SfIWDODxa2Zqc7w9b2NDEgcwoljUhAwJpfRk8AqF8W06da5rs7Z7GQNTddPlEW61dI61MttXNMIb07BHTUWunKpokK6V7VvPYVJo1wxbzH8ag1/8cMJqrm+zUU9aoJVEiHm3ZeLdZmTa3uOe4BUMquRqkb8HpytmxvzTfCyXeJ21bcqCeH5vxgbdZKvSrl6gFb2xM7q0AEBERAQAQEREBABAREQEAEBERAQAQEREBABAREQEAEBERAQAQEREBABAREQEAEBERAQAQEREBABAREQEAEBERAQLMD5Dab+xfeG3QEzQ6QVGht8NgiIKAZA1I/bLr4WmS55dNCr2opg4tYs2j2gNQK+etHtWJO7g3RXAqVX7MHtNzVf9bpdl/poNkDqnddEX/0qrngFlDpdVKATAOAgIIpaGSdEqCIXeXT65QA6R2ONuOmo5MCpNpB41Zi8wQ0JxEQEAEBERAQAQEREBABAREQEAEBERAQAQEREBABAREQEAEBERAQAQEREBABAREQEAEBERAQAQEREND/AVvABXdLc+nJAAAAAElFTkSuQmCC" /><!-- --></p>
+<p>The survival rates estimated with the Kaplan-Meier method can also be
+otained with this hypothetical dataset (dat2.1, n=26). We can see at
+time = 2 years, the survival rate = 0.761.</p>
+<pre><code>#&gt; Call: survfit(formula = Surv(time, status) ~ 1, data = dat2.2, conf.type = &quot;log-log&quot;)
+#&gt; 
+#&gt;   time n.risk n.event survival std.err lower 95% CI upper 95% CI
+#&gt;  0.224     46       1    0.978  0.0215        0.856        0.997
+#&gt;  0.388     45       1    0.957  0.0301        0.837        0.989
+#&gt;  0.708     44       1    0.935  0.0364        0.811        0.978
+#&gt;  0.726     43       1    0.913  0.0415        0.785        0.966
+#&gt;  0.804     42       1    0.891  0.0459        0.758        0.953
+#&gt;  0.832     41       1    0.870  0.0497        0.732        0.939
+#&gt;  1.211     40       1    0.848  0.0530        0.707        0.924
+#&gt;  1.240     39       1    0.826  0.0559        0.682        0.909
+#&gt;  1.624     38       1    0.804  0.0585        0.658        0.893
+#&gt;  1.754     37       1    0.783  0.0608        0.634        0.877
+#&gt;  1.950     36       1    0.761  0.0629        0.610        0.860
+#&gt;  2.000     35       0    0.761  0.0629        0.610        0.860</code></pre>
+<p>Let’s use <code>LRT</code> to conduct the final analysis with the
+data of total 46 patients.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">LRT</span>(<span class="at">dist=</span><span class="st">&quot;WB&quot;</span>, <span class="at">shape=</span><span class="dv">1</span>, <span class="at">S0=</span><span class="fl">0.62</span>, <span class="at">x0=</span><span class="dv">2</span>, <span class="at">data=</span>dat2<span class="fl">.2</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       O       E       Z </span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11.0000 19.4704  1.9196</span></span></code></pre></div>
+<p>Based on the above output, we can see the test statistic for final
+stage Z = 1.9196. It is larger than the critical value of final stage c
+= 1.6171 (See Example 1). Therefore, we can reject the null hypothesis
+and claim the success of the trial. Besides, the <code>LRT</code> output
+also provide information about the observed and expected number of
+events for the final stage (O = 11 and E = 19.4704).</p>
+</div>
+<div id="example-3-design-a-study-with-unrestricted-follow-up" class="section level3">
+<h3>Example 3 (Design a study with unrestricted follow-up)</h3>
+<p>Suppose we would like to design a study like the one in Example 1 but
+with unrestricted follow-up of 2 years (tf = 2). We can use the
+<code>Optimal.KJ</code> function to plan that.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Design2 <span class="ot">&lt;-</span> <span class="fu">Optimal.KJ</span>(<span class="at">dist=</span><span class="st">&quot;WB&quot;</span>, <span class="at">shape=</span><span class="dv">1</span>, <span class="at">S0=</span><span class="fl">0.62</span>, <span class="at">x0=</span><span class="dv">2</span>, <span class="at">hr=</span><span class="fl">0.467</span>, <span class="at">tf=</span><span class="dv">2</span>, <span class="at">rate=</span><span class="dv">5</span>,</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">alpha=</span><span class="fl">0.05</span>, <span class="at">beta=</span><span class="fl">0.2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Design2<span class="sc">$</span>Two_stage</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   n1     c1   n      c     t1    MTSL      ES     PS</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 16 -0.302  26  1.6135 3.0593   7.2    21.9187 0.3813</span></span></code></pre></div>
+<p>Based on the above output, we need to have an accrual time of 3.1
+years (or equivalently enroll 16 patients given accrual rate = 5) during
+the 1st stage. If the decision based on the result of the interim
+analysis is “Go”, then we will enroll additional 10 patients (<span class="math inline">\(26 - 16 = 10\)</span>) during the 2nd stage before
+conducting the final analysis. Critical values for the 1st and 2nd
+stages are -0.302 and 1.6135, respectively. Overall, this study will
+take maximum 7.2 years to complete and with an expected sample size of
+21.9187 under H0. The probability of early stopping under H0 is
+38.13%.</p>
+</div>
+<div id="example-4-simulation" class="section level3">
+<h3>Example 4 (Simulation)</h3>
+<p>The <code>OneArm2stage</code> package also includes the function
+<code>Sim_KJ</code> and <code>Sim_rKJ</code> that can be used to
+calculate empirical power and type-I error by simulation given the
+design parameters (e.g., t1, n1, n, c1, c) obtained from the optimal
+two-stage design with unrestricted or restricted follow-up,
+respectively.</p>
+<p>As examples, we will conduct simulations and find the empirical power
+of the corresponding design based on results of <code>Optimal.rkj</code>
+using <code>Sim_rKJ</code>, assuming each of the four possible
+parametric distributions (‘WB’, ‘LN’, ‘GM’ and ‘LG’) of the baseline
+hazard function.</p>
+<div id="wb" class="section level4">
+<h4>WB</h4>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Design3 <span class="ot">&lt;-</span> <span class="fu">Optimal.rKJ</span>(<span class="at">dist=</span><span class="st">&quot;WB&quot;</span>, <span class="at">shape=</span><span class="fl">0.5</span>, <span class="at">S0=</span><span class="fl">0.3</span>, <span class="at">x0=</span><span class="dv">1</span>, <span class="at">hr=</span><span class="fl">0.65</span>, <span class="at">x=</span><span class="dv">1</span>, <span class="at">rate=</span><span class="dv">10</span>,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">alpha=</span><span class="fl">0.05</span>, <span class="at">beta=</span><span class="fl">0.2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Design3<span class="sc">$</span>Two_stage   </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   n1     c1  n      c     t1  MTSL      ES    PS</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 38 0.1688 63 1.6306 3.7084  7.3    48.3058 0.567</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate empirical power</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sim_rKJ</span>(<span class="at">dist=</span><span class="st">&quot;WB&quot;</span>, <span class="at">shape=</span><span class="fl">0.5</span>, <span class="at">S0=</span><span class="fl">0.3</span>, <span class="at">S1=</span><span class="fl">0.3</span><span class="sc">^</span>(<span class="fl">0.65</span>), <span class="at">x0=</span><span class="dv">1</span>, <span class="at">x=</span><span class="dv">1</span>, <span class="at">rate=</span><span class="dv">10</span>, <span class="at">t1=</span><span class="fl">3.7084</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">c1=</span><span class="fl">0.1688</span>, <span class="at">c=</span><span class="fl">1.6306</span>, <span class="at">n1=</span><span class="dv">38</span>, <span class="at">n=</span><span class="dv">63</span>, <span class="at">N=</span><span class="dv">10000</span>, <span class="at">seed=</span><span class="dv">5868</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.796</span></span></code></pre></div>
+</div>
+<div id="ln" class="section level4">
+<h4>LN</h4>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Design6 <span class="ot">&lt;-</span> <span class="fu">Optimal.rKJ</span>(<span class="at">dist=</span><span class="st">&quot;LN&quot;</span>, <span class="at">shape=</span><span class="fl">0.5</span>, <span class="at">S0=</span><span class="fl">0.3</span>, <span class="at">x0=</span><span class="dv">1</span>, <span class="at">hr=</span><span class="fl">0.65</span>, <span class="at">x=</span><span class="dv">1</span>, <span class="at">rate=</span><span class="dv">10</span>,</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">alpha=</span><span class="fl">0.05</span>, <span class="at">beta=</span><span class="fl">0.2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>Design6<span class="sc">$</span>Two_stage</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   n1     c1  n      c     t1  MTSL      ES     PS</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 39 0.1097 63 1.6281 3.8408  7.3    49.6291 0.5437</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate empirical power</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sim_rKJ</span>(<span class="at">dist=</span><span class="st">&quot;LN&quot;</span>, <span class="at">shape=</span><span class="fl">0.5</span>, <span class="at">S0=</span><span class="fl">0.3</span>, <span class="at">S1=</span><span class="fl">0.3</span><span class="sc">^</span>(<span class="fl">0.65</span>), <span class="at">x0=</span><span class="dv">1</span>, <span class="at">x=</span><span class="dv">1</span>, <span class="at">rate=</span><span class="dv">10</span>, <span class="at">t1=</span><span class="fl">3.8408</span>, <span class="at">c1=</span><span class="fl">0.1097</span>,  <span class="at">c=</span><span class="fl">1.6281</span>, <span class="at">n1=</span><span class="dv">39</span>, <span class="at">n=</span><span class="dv">63</span>, <span class="at">N=</span><span class="dv">10000</span>, <span class="at">seed=</span><span class="dv">20198</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.799</span></span></code></pre></div>
+</div>
+<div id="lg" class="section level4">
+<h4>LG</h4>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>Design7 <span class="ot">&lt;-</span> <span class="fu">Optimal.rKJ</span>(<span class="at">dist=</span><span class="st">&quot;LG&quot;</span>, <span class="at">shape=</span><span class="fl">0.5</span>, <span class="at">S0=</span><span class="fl">0.3</span>, <span class="at">x0=</span><span class="dv">1</span>, <span class="at">hr=</span><span class="fl">0.65</span>, <span class="at">x=</span><span class="dv">1</span>, <span class="at">rate=</span><span class="dv">10</span>,</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">alpha=</span><span class="fl">0.05</span>, <span class="at">beta=</span><span class="fl">0.2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>Design7<span class="sc">$</span>Two_stage</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   n1     c1  n      c     t1  MTSL     ES     PS</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 38 0.1958 63 1.6306 3.7089  7.3   48.034 0.5776</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate empirical power</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sim_rKJ</span>(<span class="at">dist=</span><span class="st">&quot;LG&quot;</span>, <span class="at">shape=</span><span class="fl">0.5</span>, <span class="at">S0=</span><span class="fl">0.3</span>, <span class="at">S1=</span><span class="fl">0.3</span><span class="sc">^</span>(<span class="fl">0.65</span>), <span class="at">x0=</span><span class="dv">1</span>, <span class="at">x=</span><span class="dv">1</span>, <span class="at">rate=</span><span class="dv">10</span>, <span class="at">t1=</span><span class="fl">3.7089</span>, <span class="at">c1=</span><span class="fl">0.1958</span>,  <span class="at">c=</span><span class="fl">1.6306</span>, <span class="at">n1=</span><span class="dv">38</span>, <span class="at">n=</span><span class="dv">63</span>, <span class="at">N=</span><span class="dv">10000</span>, <span class="at">seed=</span><span class="dv">20198</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.799</span></span></code></pre></div>
+</div>
+<div id="gm" class="section level4">
+<h4>GM</h4>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>Design8 <span class="ot">&lt;-</span> <span class="fu">Optimal.rKJ</span>(<span class="at">dist=</span><span class="st">&quot;GM&quot;</span>, <span class="at">shape=</span><span class="fl">0.5</span>, <span class="at">S0=</span><span class="fl">0.3</span>, <span class="at">x0=</span><span class="dv">1</span>, <span class="at">hr=</span><span class="fl">0.65</span>, <span class="at">x=</span><span class="dv">1</span>, <span class="at">rate=</span><span class="dv">10</span>,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">alpha=</span><span class="fl">0.05</span>, <span class="at">beta=</span><span class="fl">0.2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>Design8<span class="sc">$</span>Two_stage</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   n1     c1  n      c     t1  MTSL      ES   PS</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1 38 0.1511 63 1.6306 3.7079  7.3   48.4841 0.56</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate empirical power</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Sim_rKJ</span>(<span class="at">dist=</span><span class="st">&quot;GM&quot;</span>, <span class="at">shape=</span><span class="fl">0.5</span>, <span class="at">S0=</span><span class="fl">0.3</span>, <span class="at">S1=</span><span class="fl">0.3</span><span class="sc">^</span>(<span class="fl">0.65</span>), <span class="at">x0=</span><span class="dv">1</span>, <span class="at">x=</span><span class="dv">1</span>, <span class="at">rate=</span><span class="dv">10</span>, <span class="at">t1=</span><span class="fl">3.7079</span>, <span class="at">c1=</span><span class="fl">0.1511</span>,  <span class="at">c=</span><span class="fl">1.6306</span>, <span class="at">n1=</span><span class="dv">38</span>, <span class="at">n=</span><span class="dv">63</span>, <span class="at">N=</span><span class="dv">10000</span>, <span class="at">seed=</span><span class="dv">20198</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.8</span></span></code></pre></div>
+</div>
+</div>
+<div id="example-5-fitting-a-historical-data" class="section level3">
+<h3>Example 5 (Fitting a historical data)</h3>
+<p>Suppose we would like to plan for a trial by assuming the failure
+time follows the Weibull distribution but we don’t know the parameters
+of the underlying distribution. In this situation we can use historical
+data from a previous literature to make an educated guess. The package
+<code>IPDfromKM</code> can extract individual patient data (IPD) from
+digitized Kaplan-Meier plots. The following example code shows how to do
+that using a study (Wang et al, 2018) in a group of manetel cell
+lymphoma patients. The plot we choose to extract the IPD is the KM curve
+of the overall survival (Fig.2D in Wang et al, 2018).</p>
+<p>The below steps tell you how to extract IPD data yourself, which you
+are welcome to try.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="do">## First, we take a screenshot of the plot and save it as a .png file. In this example it is named as &quot;wang2018.png&quot;.</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="do">## Next, create a path directing to the .png file.</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="do">## e.g. path &lt;-&quot;.../wang2018.png&quot;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="do">## Last, type the following code in console, and follow the prompts to extract data points by clicking your mouse on the plot.</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="do">## df &lt;- getpoints(path, 0, 24, 0, 100)  # 0,24,0,100 are the ranges of x and y-axes in the image</span></span></code></pre></div>
+<p>But for this vignette, we have saved a sample df dataset that can be
+used directly.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># a sample dataset that we already extracted from Wang et al, 2018.</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;df.csv&quot;</span>, <span class="at">package =</span> <span class="st">&quot;OneArm2stage&quot;</span>))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># risk time points</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>trisk <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>,<span class="dv">8</span>,<span class="dv">10</span>,<span class="dv">12</span>,<span class="dv">14</span>,<span class="dv">16</span>,<span class="dv">18</span>,<span class="dv">20</span>,<span class="dv">22</span>,<span class="dv">24</span>) </span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co"># number of patients at risk at each risk time point</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>nrisk.radio <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">124</span>,<span class="dv">120</span>,<span class="dv">115</span>,<span class="dv">110</span>,<span class="dv">107</span>,<span class="dv">104</span>,<span class="dv">103</span>,<span class="dv">95</span>,<span class="dv">46</span>,<span class="dv">18</span>,<span class="dv">11</span>,<span class="dv">8</span>,<span class="dv">0</span>) </span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Preprocess the raw coordinates into an proper format for reconstruct IPD</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>pre_radio <span class="ot">&lt;-</span> <span class="fu">preprocess</span>(<span class="at">dat=</span>df, <span class="at">trisk=</span>trisk, <span class="at">nrisk=</span>nrisk.radio,<span class="at">totalpts=</span><span class="cn">NULL</span>,<span class="at">maxy=</span><span class="dv">100</span>)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="co">#Reconstruct IPD</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>est_radio <span class="ot">&lt;-</span> <span class="fu">getIPD</span>(<span class="at">prep=</span>pre_radio,<span class="at">armID=</span><span class="dv">0</span>,<span class="at">tot.events=</span><span class="cn">NULL</span>)</span></code></pre></div>
+<p>We can perform a survival analysis on the reconstructed IPD, and
+compare with the results from the original paper. The survival
+probability estimation at time = 12 is 0.86 with a 95% CI of (0.8,
+0.92). This is very close to the result reported in Wang et al., 2018,
+which is 0.87 with a 95% CI of (0.79, 0.92).</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>plot_ex5 <span class="ot">&lt;-</span> <span class="fu">survreport</span>(<span class="at">ipd1=</span>est_radio<span class="sc">$</span>IPD,<span class="at">ipd2=</span><span class="cn">NULL</span>,<span class="at">arms=</span><span class="dv">1</span>,<span class="at">interval=</span><span class="dv">2</span>,<span class="at">s=</span><span class="fu">c</span>(<span class="fl">0.75</span>,<span class="fl">0.5</span>,<span class="fl">0.25</span>),<span class="at">showplots=</span>F)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>plot_ex5<span class="sc">$</span>arm1<span class="sc">$</span>survprob</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             Surv     SE 0.95LCI 0.95UCI</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 2  0.9677 0.0159  0.9371  0.9993</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 4  0.9433 0.0208  0.9033  0.9850</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 6  0.9184 0.0247  0.8712  0.9682</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 8  0.8934 0.0280  0.8402  0.9499</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 10 0.8681 0.0307  0.8099  0.9305</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 12 0.8597 0.0316  0.8000  0.9239</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 14 0.8254 0.0347  0.7602  0.8962</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 16 0.7820 0.0379  0.7112  0.8599</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 18 0.7650 0.0407  0.6893  0.8491</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 20 0.6400 0.0914  0.4837  0.8467</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; time = 22 0.6400 0.0914  0.4837  0.8467</span></span></code></pre></div>
+<p>Now, with the reconstructed IPD, we can fit a parametric regression
+model assuming Weibull distribution (which is the most widely used
+option). Before that, we need to first shift the IPD data into the
+proper format to be used with the <code>FitDat</code> function in our
+package.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>ipd <span class="ot">&lt;-</span> est_radio<span class="sc">$</span>IPD</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>dat3 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(ipd)),ipd<span class="sc">$</span>time, ipd<span class="sc">$</span>status))</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(dat3) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Entry&quot;</span>, <span class="st">&quot;Time&quot;</span>, <span class="st">&quot;Cens&quot;</span>)</span></code></pre></div>
+<p>We use <code>FitDat</code> function to fit the historical data with
+the Weibull distribution. The function returns the AIC value for the
+fitted model and the estimated parameters. We can use these parameter
+estimates to design the trial as we have shown in Example 1 and 3.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>modelWB<span class="ot">&lt;-</span> <span class="fu">FitDat</span>(dat3)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co">#AIC</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>modelWB<span class="sc">$</span>AIC</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Weibull </span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 301.7776</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>modelWB<span class="sc">$</span>parameter.estimates</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $Weibull</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     shape     scale </span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 0.1133671 3.9939753</span></span></code></pre></div>
+</div>
+</div>
+<div id="reference" class="section level2">
+<h2>Reference</h2>
+<p>Wu, J, Chen L, Wei J, Weiss H, Chauhan A. (2020). Two-stage phase II
+survival trial design. Pharmaceutical Statistics. 2020;19:214-229. <a href="https://doi.org/10.1002/pst.1983" class="uri">https://doi.org/10.1002/pst.1983</a></p>
+<p>Wang, M., Rule, S., Zinzani, P. L., Goy, A., Casasnovas, O., Smith,
+S. D.,…, Robak, T. (2018). Acalabrutinib in relapsed or refractory
+mantle cell lymphoma (ACE-LY-004): a single-arm, multicentre, phase 2
+trial. The Lancet, 391(10121), 659–667. <a href="https://doi.org/10.1016/s0140-6736(17)33108-2" class="uri">https://doi.org/10.1016/s0140-6736(17)33108-2</a></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
