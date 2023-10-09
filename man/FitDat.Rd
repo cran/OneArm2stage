@@ -2,23 +2,29 @@
 % Please edit documentation in R/FitDat.r
 \name{FitDat}
 \alias{FitDat}
-\title{Fit Historical Survival Data Assuming the Failure Time Follows the Weibull
-Distribution}
+\title{Fit Historical Survival Data Assuming the Failure Time Follows a
+Weibull Distribution}
 \usage{
 FitDat(data)
 }
 \arguments{
-\item{data}{a historical survival data sample, has to contain two variables 'Time' and 'Cens': \cr
-\emph{Time}, time under observation during trial for each patient.\cr
-\emph{Cens}, the status indicator of patients (event = 1, censored = 0).}
+\item{data}{a historical survival data sample, has to contain two variables
+'Time' and 'Cens': \cr
+\emph{Time}, the time under observation during trial for each
+patient.\cr
+\emph{Cens}, the status indicator of patients (event = 1,
+censored = 0).}
 }
 \value{
-\emph{fit.Weibull} Fitted models assuming Weibull distributions.\cr
-\emph{AIC} AIC values from the fitted model. \cr
-\emph{parameter.estimates} the estimated parameters from the fitted model.
+\emph{fit.Weibull} the fitted model assuming a Weibull distribution.
+\cr
+\emph{AIC} the AIC value from the fitted model. \cr
+\emph{parameter.estimates} the estimated parameters from the fitted
+model.
 }
 \description{
-The function fits parametric models with the underlying distributions assumed to be Weibull.
+The function fits parametric models for the time-to-event data with the
+underlying distribution of the failure time assumed to be Weibull.
 }
 \examples{
 library(IPDfromKM)

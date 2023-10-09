@@ -2,35 +2,42 @@
 % Please edit documentation in R/LRT.r
 \name{LRT}
 \alias{LRT}
-\title{Conduct Interim or Final Analyses Using One-Sample Log-Rank Test for the Optimal Two-Stage Trials}
+\title{Conduct the Interim or Final Analysis Using the One-Sample Log-Rank
+Test for Two-Stage TTE Trials}
 \usage{
-LRT(dist, shape, S0, x0, data)
+LRT(shape, S0, x0, data)
 }
 \arguments{
-\item{dist}{distribution options with 'WB' as Weibull, 'GM' as Gamma, 'LN' as log-normal, 'LG' as log-logistic.}
+\item{shape}{shape parameter for the Weibull distribution.}
 
-\item{shape}{shape parameter for one of the four parametric distributions ('WB', 'GM', 'LN' and 'LG').}
-
-\item{S0}{the survival probability at a fixed time point x0 under the null hypothesis.}
+\item{S0}{the survival probability at a fixed time point x0 under the null
+hypothesis.}
 
 \item{x0}{a fixed time point when the survival probability is S0 under null.}
 
-\item{data}{the time-to-event data for either the interim or final analysis from a two-stage survival trial, contains 2 variables:\cr
-\emph{time} time period under observation before the time of interim analysis (for interim analysis) or during entire trial (for final analysis) for each patient.\cr
-\emph{status} status indicator of patients (event = 1, censored = 0).}
+\item{data}{the time-to-event data for either the interim or final analysis
+from a two-stage survival trial, contains 2 variables:\cr
+\emph{time} the time period under observation before the time of
+interim analysis (for interim analysis) or during entire trial
+(for final analysis) for each patient.\cr
+\emph{status} the status indicator of patients (event = 1,
+censored  = 0).}
 }
 \value{
-\emph{z} the OSLR test statistic for the interim or final analysis, depending on data used.\cr
+\emph{z} the OSLR test statistic for the interim or final analysis,
+depending on data used.\cr
 \emph{O} the observed number of events.\cr
 \emph{E} the expected number of events.
 }
 \description{
-Performs the one-sample log-rank test (OSLR) for the time-to-event data from two-stage Phase II clinical trials, assuming the failure time follows one of the four distributions: Weibull, Gamma, log-normal or log-logistic.\cr
-This can be used for both unrestricted and restricted follow-up designs.
+Performs the one-sample log-rank test (OSLR) for the time-to-event data from
+two-stage Phase II clinical trials assuming the failure time follows a
+Weibull distribution. This can be used for designs with either unrestricted
+or restricted follow-up .
 }
 \examples{
 dat<- read.csv(system.file("extdata", "kj1_final.csv", package = "OneArm2stage"))
-LRT(dist="WB", shape=1, S0=0.62, x0=2, data=dat)
+LRT(shape=1, S0=0.62, x0=2, data=dat)
 # O       E       Z
 # 18.0000 16.3598 -0.4055
 }

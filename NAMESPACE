@@ -2,10 +2,8 @@
 
 export(FitDat)
 export(LRT)
-export(Optimal.KJ)
-export(Optimal.rKJ)
-export(Sim_KJ)
-export(Sim_rKJ)
+export(Sim)
+export(phase2.TTE)
 import(IPDfromKM)
 import(flexsurv)
 import(stats)

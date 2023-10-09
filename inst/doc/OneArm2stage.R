@@ -10,20 +10,81 @@ library(survival)
 library(IPDfromKM)
 
 ## ---- echo=T, eval=F----------------------------------------------------------
-#  Design1 <- Optimal.rKJ(dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, x=2, rate=5,
-#                          alpha=0.05, beta=0.2)
+#  Design1 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+#  					 beta=0.2, restricted=0)
 
 ## ----eval=F-------------------------------------------------------------------
-#  Design1$Two_stage
-#  #  n1     c1    n      c     t1    MTSL      ES     PS
-#  # 1 26 0.1349  46   1.6171 5.0946  11.2   34.6342 0.5537
+#  Design1
+#  # $Two_stage_Optimal
+#  #   n1      c1  n      c     t1 MTSL      ES     PS
+#  # 1 22 -0.7215 46 1.5952 1.0619  5.3 40.1736 0.2353
+#  #
+#  # $Two_stage_minmax
+#  #   n1     c1  n      c     t1 MTSL      ES     PS
+#  # 1 34 -0.731 44 1.6257 1.6997  5.2 41.6745 0.2324
+#  #
+#  # $Two_stage_Admissible
+#  #     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+#  # 88  26 -0.7274 45 1.6061 1.2512 5.25 40.3361 0.2335 42.66805
+#  # 98  29 -1.0069 44 1.6293 1.4269 5.20 41.5723 0.1570 42.78615
+#  # 108 21 -0.7393 46 1.5952 1.0326 5.30 40.1736 0.2298 43.08680
+#  
+
+## ---- echo=T, eval=F----------------------------------------------------------
+#  Design2 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+#  					 beta=0.2, prStop=0.35, restricted=0)
+
+## ----eval=F-------------------------------------------------------------------
+#  Design2
+#  # $Two_stage_Optimal
+#  #   n1      c1  n      c     t1 MTSL      ES     PS
+#  # 1 29 -0.3844 47 1.5799 1.4364 5.35 40.5985 0.3503
+#  #
+#  # $Two_stage_minmax
+#  #   n1      c1  n      c     t1 MTSL      ES     PS
+#  # 1 40 -0.3829 44 1.6171 1.9808  5.2 42.4619 0.3509
+#  #
+#  # $Two_stage_Admissible
+#  #     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+#  # 92  34 -0.3850 45 1.5988 1.6732 5.25 40.9611 0.3501 42.98055
+#  # 102 40 -0.3846 44 1.6171 1.9791 5.20 42.4522 0.3503 43.22610
+#  # 921 31 -0.3851 46 1.5884 1.5339 5.30 40.6365 0.3501 43.31825
+#  # 91  29 -0.3850 47 1.5799 1.4353 5.35 40.5949 0.3501 43.79745
+#  
+#  
+
+## ----eval=F-------------------------------------------------------------------
+#  Design3 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+#  					 beta=0.2, q_value=0.1, restricted=0)
+#  
+#  Design3_2 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+#  					 beta=0.2, q_value=0.7, restricted=0)
+
+## ----eval=F-------------------------------------------------------------------
+#  
+#  # q_value = 0.1
+#  Design3
+#  #
+#  # $Two_stage_Admissible
+#  #     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+#  # 108 21 -0.7393 46 1.5952 1.0326 5.30 40.1736 0.2298 40.75624
+#  # 88  26 -0.7274 45 1.6061 1.2512 5.25 40.3361 0.2335 40.80249
+#  # 98  29 -1.0069 44 1.6293 1.4269 5.20 41.5723 0.1570 41.81507
+#  
+#  # q_value = 0.7
+#  Design3_2
+#  # $Two_stage_Admissible
+#  #     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+#  # 98  29 -1.0069 44 1.6293 1.4269 5.20 41.5723 0.1570 43.27169
+#  # 88  26 -0.7274 45 1.6061 1.2512 5.25 40.3361 0.2335 43.60083
+#  # 108 21 -0.7393 46 1.5952 1.0326 5.30 40.1736 0.2298 44.25208
 
 ## ----echo=F-------------------------------------------------------------------
-dat1 <- read.csv(system.file("extdata", "rkj1_interim.csv", package = "OneArm2stage"))
+dat1 <- read.csv(system.file("extdata", "d4_t1.csv", package = "OneArm2stage"))
+dat1 <- dat1[order(dat1$Entry), c("Entry", "time", "status", "Total")] #order by entry
 
-#order by entry
-dat1[order(dat1$Entry),] 
 
+print(dat1)
 
 ## ----echo=F-------------------------------------------------------------------
 KM1 <- survfit(Surv(time, status) ~ 1, data = dat1, conf.type = "log-log")
@@ -33,106 +94,108 @@ plot(KM1, mark.time = FALSE, main = "Kaplan-Meier survival curve", xlab = "Time"
 summary(KM1, times=KM1$time)
 
 ## -----------------------------------------------------------------------------
-LRT(dist = "WB", shape = 1, S0=0.62, x0=2, data=dat1)
+LRT(shape = 1, S0=0.72, x0=3, data=dat1)
 
 ## ----echo=F-------------------------------------------------------------------
-dat2.1 <- read.csv(system.file("extdata", "rkj2_interim.csv", package = "OneArm2stage"))
-
+dat2 <- read.csv(system.file("extdata", "d4.csv", package = "OneArm2stage"))
+dat2 <- dat2[order(dat2$Entry), c("Entry", "time", "status", "Total")]
 # order by entry
-dat2.1[order(dat2.1$Entry),]
+print(dat2)
 
 ## ----echo=F-------------------------------------------------------------------
-KM2 <- survfit(Surv(time, status) ~ 1, data = dat2.1, conf.type = "log-log")
+KM2 <- survfit(Surv(time, status) ~ 1, data = dat2, conf.type = "log-log")
 plot(KM2, mark.time = FALSE, main = "Kaplan-Meier survival curve", xlab = "Time", ylab = "Survival probability")
 
 ## ----echo=F-------------------------------------------------------------------
 summary(KM2, times=KM2$time)
 
 ## -----------------------------------------------------------------------------
-LRT(dist = "WB", shape = 1, S0=0.62, x0=2, data=dat2.1)
-
-## ----echo=F-------------------------------------------------------------------
-dat2.2 <- read.csv(system.file("extdata", "rkj2_final.csv", package = "OneArm2stage"))
-
-# order by entry
-dat2.2[order(dat2.2$Entry),]
-
-## ----echo=F-------------------------------------------------------------------
-KM3 <- survfit(Surv(time, status) ~ 1, data = dat2.2, conf.type = "log-log")
-plot(KM2, mark.time = FALSE, main = "Kaplan-Meier survival curve", xlab = "Time", ylab = "Survival probability")
-
-## ----echo=F-------------------------------------------------------------------
-summary(KM3, times=KM3$time)
-
-## -----------------------------------------------------------------------------
-LRT(dist="WB", shape=1, S0=0.62, x0=2, data=dat2.2)
+LRT(shape=1, S0=0.72, x0=3, data=dat2)
 
 ## ---- echo=T, eval=F----------------------------------------------------------
-#  Design2 <- Optimal.KJ(dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, tf=2, rate=5,
-#                        alpha=0.05, beta=0.2)
+#  Design5 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+#  					 beta=0.2, restricted=1)
 
 ## ----eval=F-------------------------------------------------------------------
-#  Design2$Two_stage
-#  #   n1     c1   n      c     t1    MTSL      ES     PS
-#  # 1 16 -0.302  26  1.6135 3.0593   7.2    21.9187 0.3813
-
-## ---- echo=T, eval=F----------------------------------------------------------
-#  Design3 <- Optimal.rKJ(dist="WB", shape=0.5, S0=0.3, x0=1, hr=0.65, x=1, rate=10,
-#         alpha=0.05, beta=0.2)
-
-## ----eval=F-------------------------------------------------------------------
-#  Design3$Two_stage
-#  #   n1     c1  n      c     t1  MTSL      ES    PS
-#  # 1 38 0.1688 63 1.6306 3.7084  7.3    48.3058 0.567
-
-## -----------------------------------------------------------------------------
-# calculate empirical power
-Sim_rKJ(dist="WB", shape=0.5, S0=0.3, S1=0.3^(0.65), x0=1, x=1, rate=10, t1=3.7084,
-     c1=0.1688, c=1.6306, n1=38, n=63, N=10000, seed=5868)
-
-
-## ----echo=T, eval=F-----------------------------------------------------------
-#  Design6 <- Optimal.rKJ(dist="LN", shape=0.5, S0=0.3, x0=1, hr=0.65, x=1, rate=10,
-#                          alpha=0.05, beta=0.2)
-
-## ----eval=F-------------------------------------------------------------------
-#  Design6$Two_stage
-#  #>   n1     c1  n      c     t1  MTSL      ES     PS
-#  #> 1 39 0.1097 63 1.6281 3.8408  7.3    49.6291 0.5437
-
-## -----------------------------------------------------------------------------
-# calculate empirical power
-Sim_rKJ(dist="LN", shape=0.5, S0=0.3, S1=0.3^(0.65), x0=1, x=1, rate=10, t1=3.8408, c1=0.1097,  c=1.6281, n1=39, n=63, N=10000, seed=20198)
-
-
-## ----echo=T, eval=F-----------------------------------------------------------
-#  Design7 <- Optimal.rKJ(dist="LG", shape=0.5, S0=0.3, x0=1, hr=0.65, x=1, rate=10,
-#                          alpha=0.05, beta=0.2)
+#  Design5
+#  # $Two_stage_Optimal
+#  #   n1      c1  n   c     t1 MTSL      ES    PS
+#  # 1 36 -0.3665 60 1.6 1.7523    6 51.0914 0.357
+#  #
+#  # $Two_stage_minmax
+#  #   n1      c1  n      c     t1 MTSL      ES     PS
+#  # 1 37 -0.5517 58 1.6193 1.8222  5.9 51.7359 0.2906
+#  #
+#  # $Two_stage_Admissible
+#  #     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+#  # 120 37 -0.5625 58 1.6196 1.8066 5.90 51.7260 0.2869 54.86300
+#  # 88  36 -0.4531 59 1.6086 1.7515 5.95 51.2044 0.3252 55.10220
+#  # 232 36 -0.3643 60 1.6000 1.7556 6.00 51.0949 0.3578 55.54745
 #  
 
 ## ----eval=F-------------------------------------------------------------------
-#  Design7$Two_stage
-#  #   n1     c1  n      c     t1  MTSL     ES     PS
-#  # 1 38 0.1958 63 1.6306 3.7089  7.3   48.034 0.5776
+#  Design1$param
+#  # shape   S0    hr alpha beta rate x0 tf q_value prStop restricted
+#  #     1 0.72 0.459  0.05  0.2   20  3  3     0.5      0          0
+#  
+#  Design1$Two_stage_Optimal
+#  #   n1      c1  n      c     t1 MTSL      ES     PS
+#  # 1 22 -0.7215 46 1.5952 1.0619  5.3 40.1736 0.2353
+#  
+#  Design1$Two_stage_minmax
+#  #   n1     c1  n      c     t1 MTSL      ES     PS
+#  # 1 34 -0.731 44 1.6257 1.6997  5.2 41.6745 0.2324
+#  
+#  Design1$Two_stage_Admissible
+#  #     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+#  # 88  26 -0.7274 45 1.6061 1.2512 5.25 40.3361 0.2335 42.66805
+#  # 98  29 -1.0069 44 1.6293 1.4269 5.20 41.5723 0.1570 42.78615
+#  # 108 21 -0.7393 46 1.5952 1.0326 5.30 40.1736 0.2298 43.08680
+#  
 
 ## -----------------------------------------------------------------------------
-# calculate empirical power
-Sim_rKJ(dist="LG", shape=0.5, S0=0.3, S1=0.3^(0.65), x0=1, x=1, rate=10, t1=3.7089, c1=0.1958,  c=1.6306, n1=38, n=63, N=10000, seed=20198)
+# calculate empirical power based on optimal method, power=0.778
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.0619,
+     c1=-0.7215, c=1.5952, n1=22, n=46, N=10000, seed=5868)
 
+# calculate empirical power based on minmax method, power=0.803
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.6997,
+     c1=-0.731, c=1.6257, n1=34, n=44, N=10000, seed=5868)
 
-## ----echo=T, eval=F-----------------------------------------------------------
-#  Design8 <- Optimal.rKJ(dist="GM", shape=0.5, S0=0.3, x0=1, hr=0.65, x=1, rate=10,
-#                          alpha=0.05, beta=0.2)
+# calculate empirical power based on admissible method, power=0.789
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.2512,
+     c1=-0.7274, c=1.6061, n1=26, n=45, N=10000, seed=5868)
+
 
 ## ----eval=F-------------------------------------------------------------------
-#  Design8$Two_stage
+#  Design5
+#  # $Two_stage_Optimal
+#  #   n1      c1  n   c     t1 MTSL      ES    PS
+#  # 1 36 -0.3665 60 1.6 1.7523    6 51.0914 0.357
+#  #
+#  # $Two_stage_minmax
+#  #   n1      c1  n      c     t1 MTSL      ES     PS
+#  # 1 37 -0.5517 58 1.6193 1.8222  5.9 51.7359 0.2906
+#  #
+#  # $Two_stage_Admissible
+#  #     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+#  # 120 37 -0.5625 58 1.6196 1.8066 5.90 51.7260 0.2869 54.86300
+#  # 88  36 -0.4531 59 1.6086 1.7515 5.95 51.2044 0.3252 55.10220
+#  # 232 36 -0.3643 60 1.6000 1.7556 6.00 51.0949 0.3578 55.54745
 #  
-#  #   n1     c1  n      c     t1  MTSL      ES   PS
-#  # 1 38 0.1511 63 1.6306 3.7079  7.3   48.4841 0.56
 
 ## -----------------------------------------------------------------------------
-# calculate empirical power
-Sim_rKJ(dist="GM", shape=0.5, S0=0.3, S1=0.3^(0.65), x0=1, x=1, rate=10, t1=3.7079, c1=0.1511,  c=1.6306, n1=38, n=63, N=10000, seed=20198)
+# calculate empirical power based on optimal method, power=0.799
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.7523,
+     c1=-0.3665, c=1.6, n1=36, n=60, N=10000, restricted=1, seed=5868)
+
+# calculate empirical power based on minmax method, power=0.796
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.8222,
+     c1=-0.5517, c=1.6193, n1=37, n=58, N=10000, restricted=1, seed=5868)
+
+# calculate empirical power based on admissible method, power=0.796
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.8066,
+     c1=-0.5625, c=1.6196, n1=37, n=58, N=10000, restricted=1, seed=5868)
 
 
 ## ----eval=F-------------------------------------------------------------------
@@ -177,41 +240,4 @@ modelWB<- FitDat(dat3)
 modelWB$AIC
 
 modelWB$parameter.estimates
-
-## ----eval=F-------------------------------------------------------------------
-#  Optimal.rKJ(dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, x=2, rate=5,
-#                    alpha=0.05, beta=0.2, prStop=0.65)
-#  
-#  # $Two_stage
-#  #   n1    c1  n      c     t1 MTSL      ES     PS
-#  # 1 30 0.386 46 1.6116 5.8247 11.2 35.0258 0.6503
-
-## ----eval=F-------------------------------------------------------------------
-#  # early stopping probability under H0
-#  P <- t(seq(0.6, 0.85, l=6))
-#  
-#  # a design without pre-defined stopping probability
-#  o1 <- Optimal.rKJ(dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, x=2, rate=5,
-#                    alpha=0.05, beta=0.2)
-#  
-#  # designs with varying pre-defined stopping probabilities
-#  res1 <- t(apply(P, 2, Optimal.rKJ,
-#                  dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, x=2, rate=5, alpha=0.05, beta=0.2))
-#  
-#  # compare results
-#  r1 <- rbind(o1$Two_stage,
-#              res1[[1]]$Two_stage, res1[[2]]$Two_stage,
-#              res1[[3]]$Two_stage, res1[[4]]$Two_stage,
-#              res1[[5]]$Two_stage, res1[[6]]$Two_stage)
-#  
-#  # first row shows the design without pre-defined stopping probability (prStop=NULL)
-#  # > r1
-#  #   n1     c1  n      c     t1 MTSL      ES     PS
-#  # 1 26 0.1349 46 1.6171 5.0946 11.2 34.6350 0.5537
-#  # 2 28 0.2544 46 1.6147 5.4413 11.2 34.7161 0.6004
-#  # 3 30 0.3860 46 1.6116 5.8247 11.2 35.0258 0.6503
-#  # 4 31 0.5247 47 1.6013 6.1331 11.4 35.5642 0.7001
-#  # 5 33 0.6760 47 1.5952 6.5867 11.4 36.4433 0.7505
-#  # 6 36 0.8436 46 1.5927 7.1199 11.2 37.6740 0.8005
-#  # 7 39 1.0382 46 1.5768 7.6639 11.2 39.4686 0.8504
 

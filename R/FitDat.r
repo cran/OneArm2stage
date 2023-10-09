@@ -1,12 +1,18 @@
-##' The function fits parametric models with the underlying distributions assumed to be Weibull.
-##' @title Fit Historical Survival Data Assuming the Failure Time Follows the Weibull
-##'        Distribution
-##' @param data a historical survival data sample, has to contain two variables 'Time' and 'Cens': \cr
-##'             \emph{Time}, time under observation during trial for each patient.\cr
-##'             \emph{Cens}, the status indicator of patients (event = 1, censored = 0).
-##' @return \emph{fit.Weibull} Fitted models assuming Weibull distributions.\cr
-##'         \emph{AIC} AIC values from the fitted model. \cr
-##'         \emph{parameter.estimates} the estimated parameters from the fitted model.
+##' The function fits parametric models for the time-to-event data with the
+##' underlying distribution of the failure time assumed to be Weibull.
+##' @title Fit Historical Survival Data Assuming the Failure Time Follows a
+##' Weibull Distribution
+##' @param data a historical survival data sample, has to contain two variables
+##' 'Time' and 'Cens': \cr
+##'             \emph{Time}, the time under observation during trial for each
+##'             patient.\cr
+##'             \emph{Cens}, the status indicator of patients (event = 1,
+##'             censored = 0).
+##' @return \emph{fit.Weibull} the fitted model assuming a Weibull distribution.
+##' \cr
+##'         \emph{AIC} the AIC value from the fitted model. \cr
+##'         \emph{parameter.estimates} the estimated parameters from the fitted
+##'          model.
 ##' @export
 ##' @import flexsurv IPDfromKM
 ##'

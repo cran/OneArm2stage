@@ -15,7 +15,22 @@ knitr::opts_chunk$set(
 ```
 
 ## Introduction
-The two-stage design proposed by Wu et al., 2020 can be used for single-arm phase II trial designs with time-to-event (TOE) endpoints. This is especially useful for clinical trials on immunotherapies and molecularly targeted therapies for cancer where the TOE endpoint is commonly chosen as the primary endpoint. There are two advantages of the proposed approach: 1) It provides flexible choices from four underlying survival distributions and 2) the power of the design is more accurately calculated using the exact variance in one-sample log-rank test. The `OneArm2stage` package can be used for 1) planning the sample size and 2) conducting the interim analysis (to make the Go/No-go decisions) and the final analysis in single-arm phase II survival trials. 
+The `OneArm2stage` package serves multiple purposes, including:
+
+* Planning sample sizes and other design parameters for single-arm phase II trials with time-to-event (TOE) endpoints.
+* Conducting interim analyses, which involve making Go/No-go decisions, as well as the final analysis in survival trials.
+
+Clinical researchers can leverage the functions within this package when conducting clinical trials focused on immunotherapies or molecularly targeted therapies for cancer, where the TOE endpoint is commonly chosen as the primary outcome measure. One notable advantage of this package is its ability to calculate design power with increased precision by utilizing the exact variance in the one-sample log-rank test (Wu et al., 2020). Furthermore, it offers multiple design solutions simultaneously for single-arm phase II survival trials, including optimal, minmax, and admissible two-stage designs (Wu et al., 2020 and Jung, 2004).
+
+The optimal method is designed to minimize the expected sample size ($ES$) under H0, $$EN=PS_{H_0} \times n_1 + (1-PS_{H_0}) \times n,$$ where $PS_{H_0}$ is the early stopping probability under the null hypothesis, $n_1$ and $n$ are the sample size for the first stage and total sample size, respectively. In contrast, the minmax method minimizes the total sample size $n$. 
+
+The admissible methods aim to find a middle ground between the optimal and minmax methods by minimizing the following loss function: $$\rho=q\times n_d + (1-q) \times EN_d \space. $$ In this equation, $q$ represents the relative importance between the maximum sample size (n) and the expected sample size under H0 (ES). The variable $d$ signifies each individual design, with its total sample size ranging from that of the minmax method to the optimal method under the same trial conditions.
+
+The admissible method within this package suggests selecting the design with the lowest $\rho$ value from the options considered (refer to Example 1). This method proves especially useful in scenarios where a significant reduction in either the expected sample size (ES) or the total sample size (n) can be accomplished without significantly compromising the other parameter. For additional information regarding the admissible method, please consult Jung, 2004.
+
+The selection among the three design methods mentioned can be determined by considering the distinct characteristics of each trial, taking into account both statistical considerations and clinical/administrative requirements. Additionally, the package allows for both restricted and unrestricted follow-up. For instance, in a design with a restricted follow-up of 3 years, each patient will be followed for 3 years (provided there are no events within the 3 years). Furthermore, any patient who reaches the end of this follow-up period without experiencing an event will be censored at the end of the 3 years for the interim and final analyses. In contrast, in a design with unrestricted follow-up also set at 3 years, the requirement is for the last patient enrolled in the trial to be followed for 3 years (provided there are no events). However, any patient enrolled before the last one will not be censored for the interim and final analyses if they have been followed for more than 3 years.
+
+The following vignette illustrates the process of designing single-arm two-stage survival trials and conducting analyses/simulations using this package.
 
 ## Examples
 ```{r setup, message=F, warning=F}
@@ -24,198 +39,270 @@ library(survival)
 library(IPDfromKM)
 ```
 
-### Example 1 (Design a study with restricted follow-up)
-Assuming we are designing a study with the 2-year event-free survival (EFS) as the primary endpoint to plan the sample size. The hypotheses are: H0: S0 = 62% versus H1: S1 = 80% at the landmark time point 2 years (x0=2). This is equivalent to a hazard ratio of 0.467 assuming the survival time follows the proportional hazard assumption ($0.62^{0.467}=0.8$). For this specific study, the historical accrual rate is assumed to be 5 patients per year and the restricted follow-up time for each patient is set to be 2 years (x=2). Given type I error rate and power set to be 0.05 and 0.8, and given the failure time follows an exponential distribution ("WB" distribution with shape = 1 is essentially an exponential distribution), we can use the function `Optimal.rKJ` to plan this study as shown below.
+### Example 1 (Designing a Study with Unrestricted Follow-Up)
+Let's consider the scenario where we're designing a study with the primary endpoint being 3-year event-free survival (EFS) for sample size planning. The hypotheses under consideration are as follows:
+
+* Null Hypothesis (H0): S0 = 72% 
+* Alternative Hypothesis (H1): S1 = 86%
+
+These hypotheses pertain to the landmark time point of 3 years (x0=3). This is equivalent to assuming a hazard ratio of 0.459, provided that survival time follows the proportional hazard assumption ($0.72^{0.459}=0.86$). In this particular study, we assume a historical accrual rate of 20 patients per year, and each patient has an unrestricted follow-up time of 3 years (restricted=0 and tf=3). 
+
+Given a type I error rate of 0.05 and a desired power of 0.8, with failure times following a Weibull distribution with shape = 1, we can employ the function phase2.TTE to plan this study, as demonstrated below.
+
 ```{r, echo=T, eval=F}
-Design1 <- Optimal.rKJ(dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, x=2, rate=5,
-                        alpha=0.05, beta=0.2)
+Design1 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+					 beta=0.2, restricted=0)
 ```
 
 ```{r eval=F}
-Design1$Two_stage
-#  n1     c1    n      c     t1    MTSL      ES     PS
-# 1 26 0.1349  46   1.6171 5.0946  11.2   34.6342 0.5537
+Design1
+# $Two_stage_Optimal
+#   n1      c1  n      c     t1 MTSL      ES     PS
+# 1 22 -0.7215 46 1.5952 1.0619  5.3 40.1736 0.2353
+# 
+# $Two_stage_minmax
+#   n1     c1  n      c     t1 MTSL      ES     PS
+# 1 34 -0.731 44 1.6257 1.6997  5.2 41.6745 0.2324
+# 
+# $Two_stage_Admissible
+#     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+# 88  26 -0.7274 45 1.6061 1.2512 5.25 40.3361 0.2335 42.66805
+# 98  29 -1.0069 44 1.6293 1.4269 5.20 41.5723 0.1570 42.78615
+# 108 21 -0.7393 46 1.5952 1.0326 5.30 40.1736 0.2298 43.08680
+
 ```
 
-Based on the above output, we need to plan for an accrual time of 5.1 years (or equivalently enroll 26 patients assuming rate=5) in the 1st stage before we can conduct the interim analysis. If the decision is “Go”, we will enroll additional 20 patients ($46 - 26 = 20$) in the 2nd stage to conduct the final analysis. Critical values for the 1st and 2nd stages are 0.1349 and 1.6171, respectively. Overall, this study will take maximum 11.2 years to be completed and have an expected sample size of 34.6342 under H0. The probability of early stopping under H0 is 55.37%.
+The output from phase2.TTE provides design solutions based on three methods. If we opt for the optimal method, we need to plan for an accrual time of 1.06 years (equivalent to enrolling 22 patients assuming an accrual rate of 20) in the 1st stage before conducting the interim analysis. If the decision is to proceed ("Go"), we will enroll an additional 24 patients ($46 - 22 = 24$) for the final analysis. Critical values for the 1st and 2nd stages are -0.7215 and 1.5952, respectively. Overall, this study will take a maximum of 5.3 years to complete and is expected to have a sample size of 40.1736 under H0. The probability of early stopping under H0 is 23.53%.
+
+Similarly, if we choose the minmax method, we need to plan for an accrual time of 1.70 years (equivalent to enrolling 34 patients assuming an accrual rate of 20) in the 1st stage before conducting the interim analysis. If the decision is to proceed ("Go"), we will enroll an additional 10 patients ($44 - 34 = 10$) for the final analysis. Critical values for the 1st and 2nd stages are -0.731 and 1.6257, respectively. Overall, this study will take a maximum of 5.2 years to complete and is expected to have a sample size of 41.6745 under H0. The probability of early stopping under H0 is 23.24%.
+
+The admissible method recommends the design with the smallest $\rho$ value among the considered designs (the first row in outputs, $\rho=42.66805$). If we opt for this admissible design, we need to plan for an accrual time of 1.25 years (equivalent to enrolling 26 patients assuming an accrual rate of 20) in the 1st stage before conducting the interim analysis. If the decision is to proceed ("Go"), we will enroll an additional 19 patients ($45 - 26 = 19$) for the final analysis. Critical values for the 1st and 2nd stages are -0.7274 and 1.6061, respectively. Overall, this study will take a maximum of 5.25 years to complete and is expected to have a sample size of 40.3361 under H0. The probability of early stopping under H0 is 23.35%.
+
+### Example 2 (When Early Stopping Probability is Pre-Defined)
+If there is a need to pre-define the early stopping probability under H0, you can do so by using the argument `prStop`. This argument defines the the lower limit of the early stopping probability under H0. The default value for "prStop" is 0, which technically means the early stopping probability is $>= 0$. Essentially, it also means there is no restriction on the early stopping probability as any probability should be equal or larger than 0. In the following example, we set the early stopping probability to be at least 35%.
+```{r, echo=T, eval=F}
+Design2 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+					 beta=0.2, prStop=0.35, restricted=0)
+```
+
+```{r eval=F}
+Design2
+# $Two_stage_Optimal
+#   n1      c1  n      c     t1 MTSL      ES     PS
+# 1 29 -0.3844 47 1.5799 1.4364 5.35 40.5985 0.3503
+# 
+# $Two_stage_minmax
+#   n1      c1  n      c     t1 MTSL      ES     PS
+# 1 40 -0.3829 44 1.6171 1.9808  5.2 42.4619 0.3509
+# 
+# $Two_stage_Admissible
+#     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+# 92  34 -0.3850 45 1.5988 1.6732 5.25 40.9611 0.3501 42.98055
+# 102 40 -0.3846 44 1.6171 1.9791 5.20 42.4522 0.3503 43.22610
+# 921 31 -0.3851 46 1.5884 1.5339 5.30 40.6365 0.3501 43.31825
+# 91  29 -0.3850 47 1.5799 1.4353 5.35 40.5949 0.3501 43.79745
 
 
-### Example 2 (Conduct interim/final analysis)
-Suppose we have followed the design in Example 1 and collected data from 26 patients for four variables: 1) `Entry` (when patients enter trial), 2) `time` (observed time of patients under the trial), 3) `status` (patient status indicator) and 4) `Total` (the sum of `Entry` and `time`) as shown below. For those who would like to try the example on their own, the data samples used can be found in the folder under `/OneArm2stage/extdata`. 
+```
+We can compare the outputs above with those in Example 1. In each of the designs, the early stopping probability (PS) under H0 is now set at 35%. This strategy allows for a higher probability of early termination of an ineffective drug during the trial process. We should also be aware that using this approach necessitates larger sample sizes, particularly for the 1st stage. For example, in the optimal design, setting PS to 35% results in sample sizes of 29 for the 1st stage and 47 for the 2nd stage, whereas in the first example, the sample sizes were 22 for the 1st stage and 46 for the 2nd stage.
+
+### Example 3 (Exploring the Admissible Method Further)
+The design derived from the admissible method can be fine-tuned by adjusting `q_value`, the parameter determines the relative importance assigned to the maximum sample size (n) versus the expected sample size under H0 (ES) when creating the admissible method-based design. Its default value is 0.5, with a range of (0, 1). Smaller values of `q_value` emphasize ES, while larger values prioritize the maximum sample size, n. Let's compare the results using the code below.
+```{r eval=F}
+Design3 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+					 beta=0.2, q_value=0.1, restricted=0)
+
+Design3_2 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+					 beta=0.2, q_value=0.7, restricted=0)
+```
+```{r eval=F}
+
+# q_value = 0.1
+Design3
+# 
+# $Two_stage_Admissible
+#     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+# 108 21 -0.7393 46 1.5952 1.0326 5.30 40.1736 0.2298 40.75624
+# 88  26 -0.7274 45 1.6061 1.2512 5.25 40.3361 0.2335 40.80249
+# 98  29 -1.0069 44 1.6293 1.4269 5.20 41.5723 0.1570 41.81507
+
+# q_value = 0.7
+Design3_2
+# $Two_stage_Admissible
+#     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+# 98  29 -1.0069 44 1.6293 1.4269 5.20 41.5723 0.1570 43.27169
+# 88  26 -0.7274 45 1.6061 1.2512 5.25 40.3361 0.2335 43.60083
+# 108 21 -0.7393 46 1.5952 1.0326 5.30 40.1736 0.2298 44.25208
+```
+Modifications to the `q_value` solely impact the admissible method. Consequently, the designs obtained through the optimal and minmax methods remain unchanged from those presented in Example 1 (details not shown here). Compared to Design1 in Example 1: when `q_value` equals 0.1, the admissible design (n=46) closely resembles the design stemming from the optimal method, which prioritizes ES. Conversely, when `q_value` is set to 0.7, the design (n=44) more closely aligns with the design derived from the minmax method, emphasizing n.
+
+### Example 4 (Conducting Interim/Final Analysis)
+Let's assume we opt for the design based on the admissible method. We would need to plan for an accrual time of 1.2512 years (equivalent to enrolling 26 patients, assuming a rate of 20 patients per year) in the 1st stage before conducting the interim analysis. If the decision is to proceed ("Go"), we will enroll an additional 19 patients in the 2nd stage (45 – 26 = 19) to perform the final analysis. The critical values for the 1st and 2nd stages are -0.7274 and 1.6061, respectively. In total, this study will take a maximum of 5.25 years to complete, with an expected sample size of 40.3361 under H0. The probability of early termination under H0 is 23.35%.
+
+Suppose we have adhered to the aforementioned design and gathered data from 26 patients for four variables:
+
+* `Entry` (the point at which patients enter the trial),
+* `Time` (the observed time that patients spend in the trial),
+* `Status` (an indicator of patient status), and
+* `Total` (the sum of `Entry` and `Time`), as illustrated below.
+
+For those interested in trying the example themselves, the data samples used can be located in the folder at /OneArm2stage/extdata.
 ```{r echo=F}
-dat1 <- read.csv(system.file("extdata", "rkj1_interim.csv", package = "OneArm2stage"))
+dat1 <- read.csv(system.file("extdata", "d4_t1.csv", package = "OneArm2stage"))
+dat1 <- dat1[order(dat1$Entry), c("Entry", "time", "status", "Total")] #order by entry
 
-#order by entry
-dat1[order(dat1$Entry),] 
 
+print(dat1)
 ```
 
-We can contruct a Kaplan-Meier survival curve for this hypothetical dataset (dat1, n=26).
+We can create a Kaplan-Meier survival curve using this hypothetical dataset (dat1, n=26).
 ```{r echo=F}
 KM1 <- survfit(Surv(time, status) ~ 1, data = dat1, conf.type = "log-log")
 plot(KM1, mark.time = FALSE, main = "Kaplan-Meier survival curve", xlab = "Time", ylab = "Survival probability")
 ```
  
  
-The survival rates estimated with the Kaplan-Meier method can also be otained with this hypothetical dataset (dat1, n=26).
+The survival rates, as estimated by the Kaplan-Meier method, can also be obtained using this hypothetical dataset (dat1, n=26).
 ```{r echo=F}
 summary(KM1, times=KM1$time)
 ```
 
-We can use the function `LRT` (log-rank test) in package `OneArm2stage` to test H0: S0 = 0.62 against H1: S1 = 0.80 at the landmark time x0=2, using the data shown above (n = 26). The "Go"/"No-go" decision can be made based on the calculated critical value Z from the output below.
+We can employ the `LRT` (log-rank test) function in the `OneArm2stage` package to evaluate H0: S0 = 0.72 versus H1: S1 = 0.86 at the landmark time x0=3, utilizing the data provided earlier (n = 26). The determination of "Go" or "No-go" can be established based on the computed critical value Z from the following output.
 ```{r}
-LRT(dist = "WB", shape = 1, S0=0.62, x0=2, data=dat1)
+LRT(shape = 1, S0=0.72, x0=3, data=dat1)
 ```
 
-Based on the above output, the test statistic Z = -0.6601, which is smaller than the critical value for the 1st stage c1 = 0.1349 (See Example 1). Therefore, the decision is “No-go”, and we need to stop the trial and declare futility.
-
-Now let's assume what we have collected is a different sample of 26 patients, and their data are shown below.
+According to the output provided above, the test statistic Z is -0.1840, which is larger than  the critical value for the 1st stage, c1 = -0.7274 (refer to Example 1). Hence, the decision is to proceed with a "Go," and the trial will advance to the 2nd stage. As a result, we will enroll an additional 19 patients (45 - 26 = 19). We assume the final dataset, after adding these 19 patients, is as presented below.
 ```{r echo=F}
-dat2.1 <- read.csv(system.file("extdata", "rkj2_interim.csv", package = "OneArm2stage"))
-
+dat2 <- read.csv(system.file("extdata", "d4.csv", package = "OneArm2stage"))
+dat2 <- dat2[order(dat2$Entry), c("Entry", "time", "status", "Total")]
 # order by entry
-dat2.1[order(dat2.1$Entry),]
+print(dat2)
 ```
 
-We can contruct a Kaplan-Meier survival curve for this hypothetical dataset (dat2.1, n=26).
+We can construct a Kaplan-Meier survival curve for this combined dataset (n=45).
 ```{r echo=F}
-KM2 <- survfit(Surv(time, status) ~ 1, data = dat2.1, conf.type = "log-log")
+KM2 <- survfit(Surv(time, status) ~ 1, data = dat2, conf.type = "log-log")
 plot(KM2, mark.time = FALSE, main = "Kaplan-Meier survival curve", xlab = "Time", ylab = "Survival probability")
 ```
 
-The survival rates estimated with the Kaplan-Meier method can also be otained with this hypothetical dataset (dat2.1, n=26). We can see at time = 2 years, the survival rate = 0.758.
+The survival rates, as estimated using the Kaplan-Meier method, can also be derived from this hypothetical dataset (dat2, n=45). It is evident that at approximately 3.03 years, the survival rate is 0.711, with a 95% confidence interval of (0.555, 0.821).
 ```{r echo=F}
 summary(KM2, times=KM2$time)
 ```
 
-We can use `LRT` to test the hypotheses H0: s0 = 0.62 vs. H1: s1 = 0.80 again based on the alternative sample.
+Let's employ the `LRT` (log-rank test) to perform the final analysis using data from a total of 45 patients.
 ```{r}
-LRT(dist = "WB", shape = 1, S0=0.62, x0=2, data=dat2.1)
+LRT(shape=1, S0=0.72, x0=3, data=dat2)
 ```
-
-Since now the test statistic Z becomes 1.3733 and is larger than the 1st stage critical value c1 = 0.1349, the decision is "Go" and the trial will proceed to the 2nd stage. For that we will enroll additional 20 patients (46 - 26 = 20). We assume the final data after adding the additional 20 patients is as shown below.
-```{r echo=F}
-dat2.2 <- read.csv(system.file("extdata", "rkj2_final.csv", package = "OneArm2stage"))
-
-# order by entry
-dat2.2[order(dat2.2$Entry),]
-```
-
-We can contruct a Kaplan-Meier survival curve for this combined dataset (n=46).
-```{r echo=F}
-KM3 <- survfit(Surv(time, status) ~ 1, data = dat2.2, conf.type = "log-log")
-plot(KM2, mark.time = FALSE, main = "Kaplan-Meier survival curve", xlab = "Time", ylab = "Survival probability")
-```
-
-The survival rates estimated with the Kaplan-Meier method can also be otained with this hypothetical dataset (dat2.1, n=26). We can see at time = 2 years, the survival rate = 0.761.
-```{r echo=F}
-summary(KM3, times=KM3$time)
-```
-
-Let's use `LRT` to conduct the final analysis with the data of total 46 patients.
-```{r}
-LRT(dist="WB", shape=1, S0=0.62, x0=2, data=dat2.2)
-```
-Based on the above output, we can see the test statistic for final stage Z = 1.9196. It is larger than the critical value of final stage c = 1.6171 (See Example 1). Therefore, we can reject the null hypothesis and claim the success of the trial. Besides, the `LRT` output also provide information about the observed and expected number of events for the final stage (O = 11 and E = 19.4704). 
+Based on the provided output, we observe that the test statistic for the final stage, denoted as Z, equals -0.4838. This value is smaller than the critical value for the final stage, c = 1.6061 (refer to Example 1). Consequently, we are unable to reject the null hypothesis, and as a result, we must declare the trial as futile. Additionally, the LRT output also provides information regarding the observed and expected number of events for the final stage (O = 18 and E = 16.0611).
 
 
-### Example 3 (Design a study with unrestricted follow-up)
-Suppose we would like to design a study like the one in Example 1 but with unrestricted follow-up of 2 years (tf = 2). We can use the `Optimal.KJ` function to plan that.
+### Example 5 (Designing a Study with Restricted Follow-Up)
+Let's consider designing a study similar to the one presented in Example 1, but this time with restricted follow-up limited to 3 years (tf = 3). We can continue to utilize the `phase2.TTE` function with the argument `restricted=1`.
 ```{r, echo=T, eval=F}
-Design2 <- Optimal.KJ(dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, tf=2, rate=5,
-                      alpha=0.05, beta=0.2)
+Design5 <- phase2.TTE(shape=1,S0=0.72,x0=3,hr=0.459,tf=3,rate=20,alpha=0.05,
+					 beta=0.2, restricted=1)
 ```
 
 ```{r eval=F}
-Design2$Two_stage
-#   n1     c1   n      c     t1    MTSL      ES     PS
-# 1 16 -0.302  26  1.6135 3.0593   7.2    21.9187 0.3813
+Design5
+# $Two_stage_Optimal
+#   n1      c1  n   c     t1 MTSL      ES    PS
+# 1 36 -0.3665 60 1.6 1.7523    6 51.0914 0.357
+# 
+# $Two_stage_minmax
+#   n1      c1  n      c     t1 MTSL      ES     PS
+# 1 37 -0.5517 58 1.6193 1.8222  5.9 51.7359 0.2906
+# 
+# $Two_stage_Admissible
+#     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+# 120 37 -0.5625 58 1.6196 1.8066 5.90 51.7260 0.2869 54.86300
+# 88  36 -0.4531 59 1.6086 1.7515 5.95 51.2044 0.3252 55.10220
+# 232 36 -0.3643 60 1.6000 1.7556 6.00 51.0949 0.3578 55.54745
+
 ```
+If we opt to utilize the admissible design based on the aforementioned results, our accrual time for the 1st stage would be 1.8 years (equivalent to enrolling 37 patients at an accrual rate of 20). Should the interim analysis result in a "Go" decision, we will then enroll an additional 21 patients ($58−37=21$) during the 2nd stage before proceeding with the final analysis. The critical values for the 1st and 2nd stages are -0.5625 and 1.6196, respectively. In summary, this study is expected to take a maximum of 5.9 years to complete, with an anticipated sample size of 51.726 under H0. The probability of early termination under H0 is 28.69%. When compared to the unrestricted design (as in Example 1), it appears that the restricted design may require larger sample sizes and a longer completion time.
 
-Based on the above output, we need to have an accrual time of 3.1 years (or equivalently enroll 16 patients given accrual rate = 5) during the 1st stage. If the decision based on the result of the interim analysis is “Go”, then we will enroll additional 10 patients ($26 - 16 = 10$) during the 2nd stage before conducting the final analysis. Critical values for the 1st and 2nd stages are -0.302 and 1.6135, respectively. Overall, this study will take maximum 7.2 years to complete and with an expected sample size of 21.9187 under H0. The probability of early stopping under H0 is 38.13%.
+### Example 6 (Simulation)
+The `OneArm2stage` package also provides the `Sim` function, which allows us to calculate empirical power and type-I error through simulation based on the specified design parameters (e.g., t1, n1, n, c1, c) for any two-stage design obtained from `phase2.TTE`. The `restricted` argument can be utilized to specify whether follow-up is restricted (1) or unrestricted (0) in `Sim`.
 
-### Example 4 (Simulation)
-The `OneArm2stage` package also includes the function `Sim_KJ` and `Sim_rKJ` that can be used to  calculate empirical power and type-I error by simulation given the design parameters (e.g., t1, n1, n, c1, c) obtained from the optimal two-stage design with unrestricted or restricted follow-up, respectively.
-
-As examples, we will conduct simulations and find the empirical power of the corresponding design based on results of `Optimal.rkj` using `Sim_rKJ`, assuming each of the four possible parametric distributions ('WB', 'LN', 'GM' and 'LG') of the baseline hazard function.
-
-#### WB
-```{r, echo=T, eval=F}
-Design3 <- Optimal.rKJ(dist="WB", shape=0.5, S0=0.3, x0=1, hr=0.65, x=1, rate=10,
-       alpha=0.05, beta=0.2)
-```
-
+As part of our examples, we will conduct simulations to determine the empirical power of the design corresponding to the results obtained from `phase2.TTE` in Example 1 using `Sim`.
 ```{r eval=F}
-Design3$Two_stage   
-#   n1     c1  n      c     t1  MTSL      ES    PS
-# 1 38 0.1688 63 1.6306 3.7084  7.3    48.3058 0.567
+Design1$param
+# shape   S0    hr alpha beta rate x0 tf q_value prStop restricted
+#     1 0.72 0.459  0.05  0.2   20  3  3     0.5      0          0
+
+Design1$Two_stage_Optimal
+#   n1      c1  n      c     t1 MTSL      ES     PS
+# 1 22 -0.7215 46 1.5952 1.0619  5.3 40.1736 0.2353
+
+Design1$Two_stage_minmax
+#   n1     c1  n      c     t1 MTSL      ES     PS
+# 1 34 -0.731 44 1.6257 1.6997  5.2 41.6745 0.2324
+
+Design1$Two_stage_Admissible
+#     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+# 88  26 -0.7274 45 1.6061 1.2512 5.25 40.3361 0.2335 42.66805
+# 98  29 -1.0069 44 1.6293 1.4269 5.20 41.5723 0.1570 42.78615
+# 108 21 -0.7393 46 1.5952 1.0326 5.30 40.1736 0.2298 43.08680
+
+```
+
+For unrestricted designs, you can omit the `restricted=0` argument as in the following code, as this is the default setting. 
+```{r}
+# calculate empirical power based on optimal method, power=0.778
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.0619,
+     c1=-0.7215, c=1.5952, n1=22, n=46, N=10000, seed=5868)
+
+# calculate empirical power based on minmax method, power=0.803
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.6997,
+     c1=-0.731, c=1.6257, n1=34, n=44, N=10000, seed=5868)
+
+# calculate empirical power based on admissible method, power=0.789
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.2512,
+     c1=-0.7274, c=1.6061, n1=26, n=45, N=10000, seed=5868)
+
+```
+
+However, if you intend to use `Sim` for simulating a restricted design, it is essential to explicitly specify `restricted=1`. Let's try simulate the restricted design we obtained in Example 5.
+```{r eval=F}
+Design5
+# $Two_stage_Optimal
+#   n1      c1  n   c     t1 MTSL      ES    PS
+# 1 36 -0.3665 60 1.6 1.7523    6 51.0914 0.357
+# 
+# $Two_stage_minmax
+#   n1      c1  n      c     t1 MTSL      ES     PS
+# 1 37 -0.5517 58 1.6193 1.8222  5.9 51.7359 0.2906
+# 
+# $Two_stage_Admissible
+#     n1      c1  n      c     t1 MTSL      ES     PS      Rho
+# 120 37 -0.5625 58 1.6196 1.8066 5.90 51.7260 0.2869 54.86300
+# 88  36 -0.4531 59 1.6086 1.7515 5.95 51.2044 0.3252 55.10220
+# 232 36 -0.3643 60 1.6000 1.7556 6.00 51.0949 0.3578 55.54745
+
 ```
 
 ```{r}
-# calculate empirical power
-Sim_rKJ(dist="WB", shape=0.5, S0=0.3, S1=0.3^(0.65), x0=1, x=1, rate=10, t1=3.7084,
-     c1=0.1688, c=1.6306, n1=38, n=63, N=10000, seed=5868)
+# calculate empirical power based on optimal method, power=0.799
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.7523,
+     c1=-0.3665, c=1.6, n1=36, n=60, N=10000, restricted=1, seed=5868)
 
-```
-#### LN
-```{r echo=T, eval=F}
-Design6 <- Optimal.rKJ(dist="LN", shape=0.5, S0=0.3, x0=1, hr=0.65, x=1, rate=10,
-                        alpha=0.05, beta=0.2)
-```
+# calculate empirical power based on minmax method, power=0.796
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.8222,
+     c1=-0.5517, c=1.6193, n1=37, n=58, N=10000, restricted=1, seed=5868)
 
-```{r eval=F}
-Design6$Two_stage
-#>   n1     c1  n      c     t1  MTSL      ES     PS
-#> 1 39 0.1097 63 1.6281 3.8408  7.3    49.6291 0.5437
-```
-
-```{r}
-# calculate empirical power
-Sim_rKJ(dist="LN", shape=0.5, S0=0.3, S1=0.3^(0.65), x0=1, x=1, rate=10, t1=3.8408, c1=0.1097,  c=1.6281, n1=39, n=63, N=10000, seed=20198)
+# calculate empirical power based on admissible method, power=0.796
+Sim(shape=1, S0=0.72, S1=0.72^(0.459), x0=3, tf=3, rate=20, t1=1.8066,
+     c1=-0.5625, c=1.6196, n1=37, n=58, N=10000, restricted=1, seed=5868)
 
 ```
 
-#### LG
-```{r echo=T, eval=F}
-Design7 <- Optimal.rKJ(dist="LG", shape=0.5, S0=0.3, x0=1, hr=0.65, x=1, rate=10,
-                        alpha=0.05, beta=0.2)
+### Example 7 (Fitting Historical Data)
+Suppose we wish to plan a trial assuming that the failure time follows the Weibull distribution, but we lack knowledge about the parameters of the underlying distribution. In such a situation, we can utilize historical data from previous literature to make an informed estimation. The `IPDfromKM` package enables the extraction of individual patient data (IPD) from digitized Kaplan-Meier plots. The following example code demonstrates this process using a study conducted by Wang et al. (2018) on a group of mantle cell lymphoma patients. We have selected the KM curve depicting overall survival (Figure 2D in Wang et al., 2018) as the plot from which to extract the IPD.
 
-```
-
-```{r eval=F}
-Design7$Two_stage
-#   n1     c1  n      c     t1  MTSL     ES     PS
-# 1 38 0.1958 63 1.6306 3.7089  7.3   48.034 0.5776
-```
-                     
-```{r}
-# calculate empirical power
-Sim_rKJ(dist="LG", shape=0.5, S0=0.3, S1=0.3^(0.65), x0=1, x=1, rate=10, t1=3.7089, c1=0.1958,  c=1.6306, n1=38, n=63, N=10000, seed=20198)
-
-```
-#### GM
-```{r echo=T, eval=F}
-Design8 <- Optimal.rKJ(dist="GM", shape=0.5, S0=0.3, x0=1, hr=0.65, x=1, rate=10,
-                        alpha=0.05, beta=0.2)
-```
-
-```{r eval=F}
-Design8$Two_stage
-
-#   n1     c1  n      c     t1  MTSL      ES   PS
-# 1 38 0.1511 63 1.6306 3.7079  7.3   48.4841 0.56
-```
-
-```{r}
-# calculate empirical power
-Sim_rKJ(dist="GM", shape=0.5, S0=0.3, S1=0.3^(0.65), x0=1, x=1, rate=10, t1=3.7079, c1=0.1511,  c=1.6306, n1=38, n=63, N=10000, seed=20198)
-
-```
-
-### Example 5 (Fitting a historical data)
-Suppose we would like to plan for a trial by assuming the failure time follows the Weibull distribution but we don't know the parameters of the underlying distribution. In this situation we can use historical data from a previous literature to make an educated guess. The package `IPDfromKM` can extract individual patient data (IPD) from digitized Kaplan-Meier plots. The following example code shows how to do that using a study (Wang et al, 2018) in a group of manetel cell lymphoma patients. The plot we choose to extract the IPD is the KM curve of the overall survival (Fig.2D in Wang et al, 2018). 
-
-The below steps tell you how to extract IPD data yourself, which you are welcome to try.
+The steps outlined below provide guidance on how to extract IPD data on your own, and you are encouraged to try it out.
 ```{r eval=F}
 ## First, we take a screenshot of the plot and save it as a .png file. In this example it is named as "wang2018.png".
 
@@ -227,7 +314,7 @@ The below steps tell you how to extract IPD data yourself, which you are welcome
 
 ```
 
-But for this vignette, we have saved a sample df dataset that can be used directly.
+However, for the purposes of this vignette, we have provided a sample `df` dataset that can be used directly.
 ```{r}
 # a sample dataset that we already extracted from Wang et al, 2018.
 df<- read.csv(system.file("extdata", "df.csv", package = "OneArm2stage"))
@@ -245,20 +332,20 @@ pre_radio <- preprocess(dat=df, trisk=trisk, nrisk=nrisk.radio,totalpts=NULL,max
 est_radio <- getIPD(prep=pre_radio,armID=0,tot.events=NULL)
 ```
 
-We can perform a survival analysis on the reconstructed IPD, and compare with the results from the original paper. The survival probability estimation at time = 12 is 0.86 with a 95% CI of (0.8, 0.92). This is very close to the result reported in Wang et al., 2018, which is 0.87 with a 95% CI of (0.79, 0.92).
+We can conduct a survival analysis on the reconstructed IPD and compare the results with those reported in the original paper. The estimated survival probability at time = 12 is 0.86, with a 95% CI of (0.8, 0.92). This closely aligns with the result reported in Wang et al., 2018, which is 0.87 with a 95% CI of (0.79, 0.92).
 ```{r}
 plot_ex5 <- survreport(ipd1=est_radio$IPD,ipd2=NULL,arms=1,interval=2,s=c(0.75,0.5,0.25),showplots=F)
 plot_ex5$arm1$survprob
 ```
 
-Now, with the reconstructed IPD, we can fit a parametric regression model assuming Weibull distribution (which is the most widely used option). Before that, we need to first shift the IPD data into the proper format to be used with the `FitDat` function in our package.
+Now, using the reconstructed IPD, we can fit a parametric regression model assuming a Weibull distribution (the most widely used option). Before proceeding, we need to reformat the IPD data to make it compatible with the `FitDat` function in our package.
 ```{r}
 ipd <- est_radio$IPD
 dat3 <- as.data.frame(cbind(rep(0, nrow(ipd)),ipd$time, ipd$status))
 colnames(dat3) <- c("Entry", "Time", "Cens")
 ```
 
-We use `FitDat` function to fit the historical data with the Weibull distribution. The function returns the AIC value for the fitted model and the estimated parameters. We can use these parameter estimates to design the trial as we have shown in Example 1 and 3. 
+We apply the `FitDat` function to fit the historical data with the Weibull distribution. This function provides the AIC value for the fitted model and estimates the parameters. We can then use these parameter estimates to design the trial, as demonstrated in Examples 1 and 5.
 ```{r}
 modelWB<- FitDat(dat3)
 
@@ -268,56 +355,14 @@ modelWB$AIC
 modelWB$parameter.estimates
 ```
 
-### Example 6 (Design a study with pre-defined early stopping probability under H0)
-The early stopping probability is the probability of ending a trial upon the completion of the interim stage, which happens when the test statistic $Z_1$ at the interim analysis is less than $c_1$. In situations where users wish to pre-define the early stopping probability under H0, the argument `prStop` can be used to achieve this goal. The following example shows how to set the stopping probability under H0 to be 0.65 while designing a two-stage trial with restricted follow-up. For unrestricted designs, it follows the same procedure using `Optimal.KJ()`.
-```{r eval=F}
-Optimal.rKJ(dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, x=2, rate=5,
-                  alpha=0.05, beta=0.2, prStop=0.65)
-
-# $Two_stage
-#   n1    c1  n      c     t1 MTSL      ES     PS
-# 1 30 0.386 46 1.6116 5.8247 11.2 35.0258 0.6503
-```
-
-We can also choose the most desirable design by comparing multiple designs with varying stopping probabilities using the following codes:
-```{r eval=F}
-# early stopping probability under H0
-P <- t(seq(0.6, 0.85, l=6))
-
-# a design without pre-defined stopping probability
-o1 <- Optimal.rKJ(dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, x=2, rate=5,
-                  alpha=0.05, beta=0.2)
-
-# designs with varying pre-defined stopping probabilities
-res1 <- t(apply(P, 2, Optimal.rKJ,
-                dist="WB", shape=1, S0=0.62, x0=2, hr=0.467, x=2, rate=5, alpha=0.05, beta=0.2))
-
-# compare results
-r1 <- rbind(o1$Two_stage,
-            res1[[1]]$Two_stage, res1[[2]]$Two_stage,
-            res1[[3]]$Two_stage, res1[[4]]$Two_stage,
-            res1[[5]]$Two_stage, res1[[6]]$Two_stage)
-
-# first row shows the design without pre-defined stopping probability (prStop=NULL)
-# > r1
-#   n1     c1  n      c     t1 MTSL      ES     PS
-# 1 26 0.1349 46 1.6171 5.0946 11.2 34.6350 0.5537
-# 2 28 0.2544 46 1.6147 5.4413 11.2 34.7161 0.6004
-# 3 30 0.3860 46 1.6116 5.8247 11.2 35.0258 0.6503
-# 4 31 0.5247 47 1.6013 6.1331 11.4 35.5642 0.7001
-# 5 33 0.6760 47 1.5952 6.5867 11.4 36.4433 0.7505
-# 6 36 0.8436 46 1.5927 7.1199 11.2 37.6740 0.8005
-# 7 39 1.0382 46 1.5768 7.6639 11.2 39.4686 0.8504
-```
-
-Based on the above outputs, the sample size, critical value and length of the interim stage ($n_1$, $c_1$, and $t_1$) increase with the increase of the early stopping probability ($PS$). This trend also applies to the expected sample size under H0 ($ES$). However, the critical value at the final stage ($c$) gradually decreases as the $PS$ increases. The total sample size ($n$) and the maximum total study length ($MTSL$) are relatively stable despite the increase of $PS$. Based on the specific needs for any particular trial, a decision can be made from the above options based on the design parameters.
-
 ## Reference
 Wu, J, Chen L, Wei J, Weiss H, Chauhan A. (2020). Two-stage phase II survival trial design. Pharmaceutical
-  Statistics. 2020;19:214-229. https://doi.org/10.1002/pst.1983
+  Statistics. 19:214-229. https://doi.org/10.1002/pst.1983
 
 Wang, M., Rule, S., Zinzani, P. L., Goy, A., Casasnovas, O., Smith, S. D.,..., Robak, T. (2018). 
   Acalabrutinib in relapsed or refractory mantle cell lymphoma (ACE-LY-004):
-  a single-arm, multicentre, phase 2 trial. The Lancet, 391(10121), 659–667.
+  a single-arm, multicentre, phase 2 trial. The Lancet. 391(10121), 659–667.
   https://doi.org/10.1016/s0140-6736(17)33108-2
+
+Jung, S.-H., (2004). Admissible two-stage designs for phase II cancer clinical trials. Statistics in Medicine. 23:561-569. https://doi.org/10.1002/sim.1600
 
